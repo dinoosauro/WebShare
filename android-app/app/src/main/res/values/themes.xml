@@ -1,0 +1,29 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.WebShare" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/accent</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/accent</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+        <item name="colorTertiary">@color/accent</item>
+        <item name="colorOnTertiary">@color/white</item>
+
+        <!-- Surface colors - this controls AppBarLayout -->
+        <item name="colorSurface">@color/light_background</item>
+        <item name="android:colorBackground">@color/light_background</item>
+        <item name="colorSurfaceContainerHigh">@color/light_card</item>
+        <item name="colorOutline">@color/dark_background</item>
+        <item name="colorSurfaceContainerHighest">@color/light_card_highest</item>
+        <item name="colorOnSurfaceVariant">@color/light_second_text</item>
+        <item name="colorOnSurface">@color/black</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/work_sans</item>
+    </style>
+
+    <style name="Theme.WebShare" parent="Base.Theme.WebShare" />
+</resources>

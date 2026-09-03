@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WebShare</string>
+    <string name="app_desc">Condividi la tua libreria di foto, video, musica e file su qualsiasi dispositivo connesso alla stessa rete Wi-Fi.</string>
+    <string name="server_running">Il server è in esecuzione! Apri il seguente sito web dagli altri dispositivi:</string>
+    <string name="authentication_suggest">Quando sei pronto ad accedere, clicca sul pulsante in basso per ottenere il codice di autenticazione.</string>
+    <string name="stop_server_desc">Se hai finito di caricare tutti i file, clicca sul pulsante in basso per fermare il server.</string>
+    <string name="get_auth_code">Ottieni il codice di autenticazione</string>
+    <string name="stop_server">Ferma il server</string>
+    <string name="server_not_running">Il server non è in esecuzione. Clicca sul pulsante in basso per far partire il server. Se vuoi, puoi anche cambiare la porta.</string>
+    <string name="start_server">Avvia server</string>
+    <string name="selected_port">Porta selezionata:</string>
+    <string name="port">Porta</string>
+    <string name="missing_authorization">Impossibile avviare il server: autorizzare l\'accesso completo ai file prima di riprovare.</string>
+    <string name="server_start_fail">Errore nell\'avvio del server: %1$s</string>
+    <string name="authorization_code">Codice di autorizzazione</string>
+    <string name="authorization_code_dialog_desc">Per accedere dal tuo altro dispositivo, inserisci il codice che troverai nella prossima linea. %1$s</string>
+    <string name="done">Fatto</string>
+    <string name="grant_authorization">Per favore autorizza l\'accesso all\'archiviazione, altrimenti WebShare non può funzionare.</string>
+    <string name="foreground_title">WebShare è in esecuzione</string>
+    <string name="foreground_desc">Altri dispositivi connessi alla stessa rete Wi-Fi possono vedere i tuoi file.</string>
+    <string name="start_server_title">Avvia il server:</string>
+    <string name="settings">Impostazioni:</string>
+    <string name="calc_folder_size">Calcola le dimensioni delle cartelle. Questo renderà la sezione File del sito più lenta.</string>
+    <string name="server_log_in">Accedi al server:</string>
+    <string name="authorize_new_logins">Autorizza i nuovi accessi:</string>
+    <string name="access_external_drive">Accedi ai dischi esterni:</string>
+    <string name="access_external_drives_desc">Android potrebbe richiedere di selezionare manualmente il dispositivo di archiviazione esterno in modo che possa essere visto o modificato da WebShare. Clicca sul pulsante in basso per concedere l\'accesso.</string>
+    <string name="pick_external_drive">Seleziona un dispositivo esterno</string>
+    <string name="revoke_access_desc">Qui in basso puoi trovare tutte le cartelle a cui hai manualmente abilitato l\'accesso. Clicca su una di queste per revocare l\'accesso.</string>
+    <string name="stop_server_title">Ferma il server:</string>
+    <string name="new_version_available">Una nuova versione è disponibile</string>
+    <string name="update_version_desc">Vuoi aggionare WebShare dalla versione %1$s alla versione %2$s?</string>
+    <string name="yes">Sì</string>
+    <string name="not_now">Non adesso</string>
+    <string name="dont_ask_again">Non chiedere più</string>
+    <string name="webshare_version">WebShare • Versione %1$s</string>
+    <string name="opensource">Puoi trovare la lista delle licenze open source nelle impostazioni della web app.</string>
+    <string name="thirdparty_clients">Permetti ai client di terze parti di accedere a WebShare. Questo abiliterà CORS per questo server.</string>
+</resources>

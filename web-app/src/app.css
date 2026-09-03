@@ -1,0 +1,324 @@
+@font-face {
+  font-family: 'Work Sans';
+  src: url('/ws_regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Work Sans';
+  src: url('/ws_medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Work Sans';
+  src: url('/ws_semibold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Work Sans';
+  src: url('/ws_bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --background: #272727;
+  --text: #fafafa;
+  --secondtext: #cbcbcb;
+  --card: #474747;
+  --secondcard: #656565;
+  --font: "Work Sans", sans-serif;
+  --picture-height: 200px;
+  --border-size: 1px;
+  --accent: #ac8e4f;
+  --accenttext: var(--text);
+  --transparency-filter: blur(8px) brightness(50%);
+}
+
+body {
+  padding: 10px;
+  background-color: var(--background);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+.emptyBtn {
+  appearance: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  color: var(--text);
+  font-family: var(--font);
+}
+
+.card {
+  padding: 10px;
+  border-radius: 12px;
+  background-color: var(--card);
+}
+
+.flex {
+  display: flex;
+}
+
+.gap {
+  gap: 10px;
+}
+
+.hcenter {
+  align-items: center;
+}
+
+.opacity {
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+}
+
+a {
+  color: var(--text);
+}
+
+button:not(.emptyBtn),
+input:not([type=checkbox]),
+select {
+  background-color: var(--card);
+  padding: 10px;
+  border: 1px solid var(--text);
+  width: 100%;
+  width: -webkit-fill-available;
+  width: -moz-available;
+  font-family: var(--font);
+  color: var(--text);
+  border-radius: 12px;
+  transition: filter 0.2s ease-in-out;
+}
+
+button:hover,
+.hover:hover,
+input[type=checkbox]:hover {
+  cursor: pointer;
+}
+
+button:not(.emptyBtn, .selected):hover {
+  filter: brightness(130%);
+}
+
+button:not(.emptyBtn) {
+  background-color: var(--accent);
+  color: var(--accenttext);
+}
+
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+[disabled] {
+  filter: brightness(70%);
+}
+
+.topBtnContainer {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  border-radius: 18px;
+  backdrop-filter: var(--transparency-filter);
+  border: 1px solid var(--text);
+  z-index: 5;
+}
+
+.topBtnContainer button {
+  padding: 10px;
+}
+
+.bottomDialog {
+  width: calc(70vw - 16px);
+  padding: 15px;
+  border: 1px solid var(--text);
+  backdrop-filter: blur(8px) brightness(50%);
+  position: fixed;
+  bottom: 15px;
+  left: 15vw;
+  border-radius: 12px;
+}
+
+.selected {
+  filter: brightness(50%);
+}
+
+input[type=checkbox] {
+  position: relative;
+  width: 60px;
+  min-width: 60px;
+  height: 20px;
+  min-height: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--text);
+  appearance: none;
+  background-color: var(--secondcard);
+  transition: background-color 0.2s ease-in-out;
+}
+
+input[type=checkbox].cardColor {
+  background-color: var(--card);
+}
+
+input[type=checkbox]:checked {
+  background-color: var(--accent);
+}
+
+input[type=checkbox]::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  left: 2px;
+  border-radius: 50%;
+  background-color: var(--text);
+  transition: 0.2s ease-in-out;
+}
+
+input[type=checkbox]:checked::before {
+  left: 42px;
+  background-color: var(--accenttext);
+}
+
+.videoControls {
+  position: absolute;
+  width: 80%;
+  left: 10%;
+  bottom: 15px;
+  backdrop-filter: blur(8px) brightness(40%);
+  -webkit-backdrop-filter: blur(8px) brightness(40%);
+  border-radius: 12px;
+  border: 1px solid var(--text);
+}
+
+.wcenter {
+  justify-content: center;
+}
+
+.backgroundChange {
+  transition: background-color 0.3s ease-in-out;
+  padding: 5px;
+  border-radius: 50%;
+}
+
+.maxHeight {
+  height: 100%;
+  height: -webkit-fill-available;
+  height: -moz-available;
+}
+
+table {
+  min-width: 100%;
+  width: auto;
+  border-collapse: separate;
+  border-spacing: 4px;
+}
+
+table tr>* {
+  padding: 10px;
+  border-radius: 8px;
+}
+
+table tr {
+  background-color: var(--secondcard);
+  border-radius: 8px;
+}
+
+table thead tr,
+table thead tr div {
+  background-color: var(--accent);
+  color: var(--accenttext);
+}
+
+td {
+  text-align: center;
+}
+
+.main {
+  z-index: 2;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--background);
+}
+
+.opacityFade {
+  border-radius: 12px;
+  max-width: 16vw;
+  max-height: 16vh;
+  position: fixed;
+  z-index: 11;
+  animation: opacityFadeAnimation 1s ease-in-out;
+  opacity: 0;
+
+}
+
+@keyframes opacityFadeAnimation {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.overflow {
+  overflow-x: hidden;
+}
+
+.overflow>* {
+  white-space: nowrap;
+  margin: 0;
+  overflow: hidden;
+}
+
+input[type=color] {
+  min-height: 35px;
+  padding: 5px;
+}
+
+label.flex > input:not([type=checkbox]), label.flex > select {
+  width: 100%;
+}
+
+.spinner {
+  width: min(15vw, 15vh);
+  height: min(15vw, 15vh);
+  border-radius: 50%;
+  background-color: var(--accent);
+  position: fixed;
+  z-index: 11;
+  top: calc(50vh - (min(15vw, 15vh) / 2));
+  left: calc(50vw - (min(15vw, 15vh) / 2));
+  animation: spinnerAnimation 1.2s infinite ease-in-out;
+}
+
+@keyframes spinnerAnimation {
+  0% {
+    scale: 0
+  }
+  50% {
+    scale: 1
+  }
+  100% {
+    scale: 0
+  }
+}
