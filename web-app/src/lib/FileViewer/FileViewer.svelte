@@ -584,10 +584,10 @@
         </table>
     </div>
 {:else}
-<div class="flex hcenter gap" style="flex-wrap: wrap;">
+<div class="flex hcenter gap" style="flex-wrap: wrap; align-items: stretch">
     {#each currentFiles as file, i (file.fileContentUri || file.path)}
         {#if i < loadedItems}
-        <button use:addToDirectoryMap={file} in:slide={{duration: 300, easing: cubicInOut}} out:slide={{duration: 300, easing: cubicInOut}} class="flex hcenter gap maxHeight" style="background-color: var(--secondcard); flex: 1 0 calc(var(--picture-height) + 150px);" onclick={async (e) => {
+        <button use:addToDirectoryMap={file} in:slide={{duration: 300, easing: cubicInOut}} out:slide={{duration: 300, easing: cubicInOut}} class="flex hcenter gap" style="background-color: var(--secondcard); flex: 1 0 calc(var(--picture-height) + 150px);" onclick={async (e) => {
             fileButtonEvent(e, file);
         }}>
             {#if SettingsObject.fileViewer.showImagePreview && (file.mimeType?.startsWith("image") || file.mimeType?.startsWith("video"))}
@@ -596,9 +596,9 @@
                 <img class="icon" src={getIconSrc(getImageToUse(file) as "document")} alt={lang("File icon")}>
             {/if}
             <p style="overflow-wrap: anywhere; pointer-events: none; width: 100%; flex: 1">
-                <span style="color: var(--text);">{file.path}</span>
+                <span style="color: var(--text); overflow-wrap: anywhere">{file.path}</span>
                 {#if getFileInfoStr(file).length !== 0}
-                <span style="margin-top: 10px; display: flex; color: var(--secondtext); flex-direction: column;">
+                <span style="margin-top: 10px; display: flex; color: var(--secondtext); flex-direction: column; overflow-wrap: anywhere">
                     {#each getFileInfoStr(file) as str}
                         <span style="width: 100%;">{str}</span>
                     {/each}

@@ -200,7 +200,7 @@
             <span>{lang("Change the volume level")}:</span>
             <div style="height: 10px;"></div>
             <InputRange events={[["input", (e) => {
-                PlayAudio.volumeFilter.gain.value = +(e.target as HTMLInputElement).value;
+                if (PlayAudio.volumeFilter) PlayAudio.volumeFilter.gain.value = +(e.target as HTMLInputElement).value;
             }]]} max={2} step={0.01} defaultValue={1}></InputRange>
         </div>
         <button class="emptyBtn" onclick={() => (volumeButtonPosition = undefined)}>

@@ -322,3 +322,19 @@ label.flex > input:not([type=checkbox]), label.flex > select {
     scale: 0
   }
 }
+
+p, span, button {
+  font-size: 14px;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h2, h2 > span {
+  font-size: 24px;
+}
+
+h1 {
+  font-size: 36px;
+}

@@ -43,7 +43,7 @@
 
 
 
-<div class="main opacity" style="overflow: auto;" bind:this={main}>
+<div class="main opacity" style="overflow: auto; opacity: 0" bind:this={main}>
     <img style="width: 100vw; height: 100vh; position: fixed; z-index: -1; filter: blur(32px) brightness(30%); object-fit: cover" {src} alt={lang("Background album art")}>
     <button class="flex hcenter emptyBtn" style="padding: 5px; backdrop-filter: blur(8px) brightness(80%); position: fixed; top: 15px; left: 15px; width: fit-content; border-radius: 50%; border: 1px solid var(--text)" onclick={() => {
         window.history.back();

@@ -24,7 +24,7 @@ The easiest way to install WebShare is by downloading the APK from GitHub Releas
 
 ### Build instructions
 
-First, you'll need to build the web app: install node.js, and then run the `npx vite --build` command from the `web-app` folder. You'll find some files in the dist folder: copy them in the `android-app/src/main/res/raw` folder. Now, you can build the APK using Android Studio (or any other application that permits to build Android APKs).
+First, you'll need to build the web app: install node.js, and then run the `npx vite build` command from the `web-app` folder. You'll find some files in the dist folder: copy them in the `android-app/src/main/res/raw` folder. Now, you can build the APK using Android Studio (or any other application that permits to build Android APKs).
 
 ## Sections
 

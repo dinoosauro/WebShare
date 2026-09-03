@@ -8,14 +8,17 @@
  */
 export default async function imageOpenTransition(sourceImage: HTMLImageElement, destionationImage: HTMLImageElement, destinationContainer: HTMLElement, isClosing?: boolean, isFromMusicTab?: boolean) {
     document.body.style.overflow = "hidden";
-    destinationContainer.style.opacity = isClosing ? "0" : "1";
     const rect = sourceImage.getBoundingClientRect();
     const newImage = sourceImage.cloneNode() as HTMLImageElement;
-    newImage.style.zIndex = "3";
-    newImage.style.position = "fixed";
-    if (!isFromMusicTab) newImage.style.objectFit = "contain";
-    for (const prop of ["top", "left", "width", "height"]) newImage.style[prop as "top"] = `${rect[prop as "top"]}px`;
-    document.body.append(newImage);
+    await new Promise<void>(res => { // We first need to load the image, otherwise the transition will be buggy. We shoulnd't have a lot of issues, since it's cached.
+        newImage.onload = () => res();
+        newImage.style.zIndex = "3";
+        newImage.style.position = "fixed";
+        if (!isFromMusicTab) newImage.style.objectFit = "contain";
+        for (const prop of ["top", "left", "width", "height"]) newImage.style[prop as "top"] = `${rect[prop as "top"]}px`;
+        document.body.append(newImage);
+    })
+    destinationContainer.style.opacity = isClosing ? "0" : "1";
     const destinationRect = destionationImage.getBoundingClientRect();
     let outputStyle = {
         top: `${destinationRect.top}px`,

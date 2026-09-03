@@ -2,6 +2,6 @@
     const {children, isSecondCard, applyMaxHeight}: {children: any, isSecondCard?: boolean, applyMaxHeight?: boolean} = $props();
 </script>
 
-<div class={`card${applyMaxHeight ? " maxHeight" : ""}`} style={`${isSecondCard ? "background-color: var(--secondcard); " : ""}`}>
+<div class={`card`} style={`${isSecondCard ? "background-color: var(--secondcard); " : ""}${applyMaxHeight ? "height: calc(100% - 20px)" : ""}`}>
     {@render children()}
 </div>

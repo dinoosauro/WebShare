@@ -134,6 +134,20 @@ public class Server extends NanoHTTPD {
         return resp;
     }
 
+    public Response corsChunkResponse(Response.IStatus status, String mimetype, InputStream content, boolean addCacheControl) {
+        Response resp = newChunkedResponse(status, mimetype, content);
+        if (enableCors) resp.addHeader("Access-Control-Allow-Origin", "*");
+        resp.addHeader("Access-Control-Max-Age", "3628800");
+        resp.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
+        resp.addHeader("Access-Control-Allow-Headers", "Authorization");
+        if (addCacheControl) resp.addHeader("Cache-Control", "max-age=600, private");
+        return resp;
+    }
+
+    public Response corsChunkResponse(Response.IStatus status, String mimetype, InputStream content) {
+        return corsChunkResponse(status, mimetype, content, false);
+    }
+
     @Override
     public Response serve(IHTTPSession session) {
         if (session.getMethod() == Method.OPTIONS) return corsFixedLengthResponse(Response.Status.OK, "text/plain", "");
@@ -263,7 +277,7 @@ public class Server extends NanoHTTPD {
                                     PdfRenderer.Page page = renderer.openPage(0);
                                     Bitmap bitmap = Bitmap.createBitmap(page.getWidth(), page.getHeight(), Bitmap.Config.ARGB_8888);
                                     page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-                                    return newChunkedResponse(Response.Status.OK, "image/webp", convertImage(bitmap, 60, "webp"));
+                                    return corsChunkResponse(Response.Status.OK, "image/webp", convertImage(bitmap, 60, "webp"), true);
                                 } catch (Exception e) {
                                     return corsFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "No file could be found from the provided path.");
                                 }
@@ -272,7 +286,7 @@ public class Server extends NanoHTTPD {
                                     MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                                     retriever.setDataSource(context, documentFile.getUri());
                                     byte[] bytes = retriever.getEmbeddedPicture();
-                                    if (bytes != null) return newChunkedResponse(Response.Status.OK, "image/webp", convertImage(BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null), 60, "webp"));
+                                    if (bytes != null) return corsChunkResponse(Response.Status.OK, "image/webp", convertImage(BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null), 60, "webp"), true);
                                     throw new Exception("Bytes cannot be null");
                                 } catch (Exception e) {
                                     return corsFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "No file could be found from the provided path.");
@@ -287,7 +301,7 @@ public class Server extends NanoHTTPD {
                                     } else result = retriever.getFrameAtTime(-1);
                                     if (result == null) throw new IOException("Failed fetching data");
                                     retriever.release();
-                                    return newChunkedResponse(Response.Status.OK, "image/webp", convertImage(result, 60, "webp"));
+                                    return corsChunkResponse(Response.Status.OK, "image/webp", convertImage(result, 60, "webp"), true);
                                 } catch (IOException e) {
                                     return corsFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "No file could be found from the provided path.");
                                 }
@@ -310,7 +324,7 @@ public class Server extends NanoHTTPD {
                                     try (InputStream is = context.getContentResolver().openInputStream(documentFile.getUri())) {
                                         bitmap = BitmapFactory.decodeStream(is, null, options);
                                     }
-                                    return newChunkedResponse(Response.Status.OK, "image/webp", convertImage(bitmap, 60, "webp"));
+                                    return corsChunkResponse(Response.Status.OK, "image/webp", convertImage(bitmap, 60, "webp"), true);
                                 } catch (IOException e) {
                                     return corsFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "No file could be found from the provided path.");
                                 }
@@ -324,7 +338,7 @@ public class Server extends NanoHTTPD {
                         Bitmap bitmap = getThumbnail(context, Long.parseLong(id), type.equals("video") ? AvailableMediaStoreUriTypes.VIDEO : type.equals("audio") ? AvailableMediaStoreUriTypes.AUDIO : AvailableMediaStoreUriTypes.IMAGE);
                         if (bitmap != null) {
                             try {
-                                return newChunkedResponse(Response.Status.OK, "image/webp", convertImage(bitmap, 60, "webp"));
+                                return corsChunkResponse(Response.Status.OK, "image/webp", convertImage(bitmap, 60, "webp"), true);
                             } catch (IOException e) {
                                 return corsFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "Failed image encoding");
                             }
@@ -515,7 +529,7 @@ public class Server extends NanoHTTPD {
                                 service.shutdown();
                             }
                         });
-                        Response response = newChunkedResponse(Response.Status.OK, "application/zip", pipedInputStream);
+                        Response response = corsChunkResponse(Response.Status.OK, "application/zip", pipedInputStream);
                         response.addHeader("Content-Disposition", "attachment; filename=\"WebShare-" + System.currentTimeMillis() + ".zip\"");
                         return response;
                     } catch (IOException e) {
@@ -603,9 +617,9 @@ public class Server extends NanoHTTPD {
             }
         }
         // Check if a font should be delivered
-        if (webPath.startsWith("/ws-")) return newChunkedResponse(Response.Status.OK, "font/woff2", context.getResources().openRawResource(webPath.contains("semibold") ? R.raw.ws_semibold : webPath.contains("bold") ? R.raw.ws_bold : webPath.contains("medium") ? R.raw.ws_medium : R.raw.ws_regular));
+        if (webPath.startsWith("/ws_")) return corsChunkResponse(Response.Status.OK, "font/woff2", context.getResources().openRawResource(webPath.contains("semibold") ? R.raw.ws_semibold : webPath.contains("bold") ? R.raw.ws_bold : webPath.contains("medium") ? R.raw.ws_medium : R.raw.ws_regular));
         // Otherwise, just return the HTML webpage
-        return newChunkedResponse(Response.Status.OK, "text/html", context.getResources().openRawResource(R.raw.index));
+        return corsChunkResponse(Response.Status.OK, "text/html", context.getResources().openRawResource(R.raw.index));
     }
 
     /**
@@ -709,12 +723,13 @@ public class Server extends NanoHTTPD {
      * @return a NanoHTTP response with the file to download
      */
     private Response downloadFileFromMediaStore(IHTTPSession session, String mimeType, String convertTo, String id, String outputName) {
-        Uri imageUri = ContentUris.withAppendedId(getMediaStoreUri(mimeType.startsWith("albumart") ? AvailableMediaStoreUriTypes.ALBUMART : mimeType.startsWith("audio") ? AvailableMediaStoreUriTypes.AUDIO : mimeType.startsWith("video") ? AvailableMediaStoreUriTypes.VIDEO : AvailableMediaStoreUriTypes.IMAGE), Long.parseLong(id));
-        if (mimeType.startsWith("albumart")) mimeType = "image/jpeg";
+        boolean isAlbumArt = mimeType.startsWith("albumart");
+        Uri imageUri = ContentUris.withAppendedId(getMediaStoreUri(isAlbumArt ? AvailableMediaStoreUriTypes.ALBUMART : mimeType.startsWith("audio") ? AvailableMediaStoreUriTypes.AUDIO : mimeType.startsWith("video") ? AvailableMediaStoreUriTypes.VIDEO : AvailableMediaStoreUriTypes.IMAGE), Long.parseLong(id));
+        if (isAlbumArt) mimeType = "image/jpeg";
         ContentResolver resolver = context.getContentResolver();
         try {
             if (convertTo != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // Convert the image
-                return newChunkedResponse(Response.Status.OK, "image/" + convertTo, convertImage(ImageDecoder.decodeBitmap(ImageDecoder.createSource(resolver, imageUri), (decoder, info, src) -> {
+                return corsChunkResponse(Response.Status.OK, "image/" + convertTo, convertImage(ImageDecoder.decodeBitmap(ImageDecoder.createSource(resolver, imageUri), (decoder, info, src) -> {
                     decoder.setAllocator(ImageDecoder.ALLOCATOR_SOFTWARE); // Required since Bitmap.compress() can't use a hardware bitmap
                     decoder.setMutableRequired(false);
                 }), 60, convertTo));
@@ -734,6 +749,7 @@ public class Server extends NanoHTTPD {
                 Response response = corsFixedLengthResponse(Response.Status.OK, mimeType, inputStream, fileLength);
                 response.addHeader("Accept-Ranges", "bytes");
                 if (outputName != null) response.addHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(outputName, StandardCharsets.UTF_8).replace("+", "%20"));
+                if (isAlbumArt) response.addHeader("Cache-Control", "max-age=600, private");
                 return response;
             }
             // We instead need to read the file range

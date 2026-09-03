@@ -42,19 +42,22 @@ const obj = {
      */
     queuePosition: 0,
     /**
-     * The GainNode that permits to change the volume of the played track
+     * The GainNode that permits to change the volume of the played track.
+     * 
+     * Since Safari requires user interaction to create the AudioContext, we'll wait until the user clicks on a track.
      */
-    volumeFilter: (() => {
-        const context = new AudioContext();
-        const source = context.createMediaElementSource(audio);
-        const gain = context.createGain();
-        source.connect(gain).connect(context.destination);
-        return gain;
-    })(),
+    volumeFilter: null as null | GainNode,
     /**
      * Play an audio file
      */
     playAudio: function({info, token, queue, play = true}: PlayAudioProps) {
+        if (!obj.volumeFilter) { 
+            const context = new AudioContext();
+            const source = context.createMediaElementSource(audio);
+            const gain = context.createGain();
+            source.connect(gain).connect(context.destination);
+            obj.volumeFilter = gain;
+        }
         tokenStorage = token;
         obj.audio.src = `${StartPath}/api/download?id=${info.id}&mimetype=${encodeURIComponent("audio/mpeg")}&name=${encodeURIComponent(info.name)}&token=${encodeURIComponent(token)}`;
         if (play) obj.audio.play();

@@ -48,7 +48,7 @@
         }}>Add</button>
     </label><br>
     <Card isSecondCard={!isSecondCard}>
-        <u>{lang("Already added entries (click to remove)")}":</u><br><br>
+        <u>{lang("Already added entries (click to remove)")}:</u><br><br>
         <div class="flex hcenter gap" style="overflow: auto;">
             {#key inputKeys[id] || id}
             {#each array as entry, i (`${entry}-${i}`)}

@@ -29,7 +29,6 @@
         position: fixed;
         z-index: 5;
         backdrop-filter: blur(8px) brightness(50%);
-        -webkit-backdrop-filter: blur(8px) brightness(50%);
     }
     .dialog > .dialogContent {
         position: fixed;

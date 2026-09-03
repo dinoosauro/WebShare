@@ -594,9 +594,9 @@
         <div class={`flex hcenter gap wrap`}>
             {#each sortedAudioFiles as [albumName, albumContent], i (albumName)}
             {#if i < loadedItems}
-            <button class={`emptyBtn maxHeight${albumContent.some(i => !selectedItems.has(i.id)) ? "" : " selected"}`} use:addToAlbumMap={{name: albumName, metadata: albumContent}} onclick={(e) => clickEvent(e, albumName, albumContent)}>
+            <button class={`emptyBtn ${albumContent.some(i => !selectedItems.has(i.id)) ? "" : " selected"}`} use:addToAlbumMap={{name: albumName, metadata: albumContent}} onclick={(e) => clickEvent(e, albumName, albumContent)}>
                 <div style="pointer-events: none; height: 100%">
-                    <Card applyMaxHeight={true} isSecondCard={true}>
+                    <Card isSecondCard={true} applyMaxHeight={true}>
                         <div class={enableCompactMode ? "flex hcenter gap" : ""}>
                             <div style={`margin-top: 10px;${enableCompactMode ? " --picture-height: 100px;" : ""}`}>
                                 <ImageIntersectionViewer customErrorEvent={(e) => {
@@ -604,9 +604,10 @@
                                 }} name={`${lang("Thumbnail of")} ${albumName}`} suggestedProportion={1} imagePreviewUrl={getAlbumArtLink(albumName, albumContent)}></ImageIntersectionViewer>
                             </div>
                             <p style="margin-bottom: 10px; pointer-events: none; width: 100%">
-                                <span>{sortingInfo[0] === "track" ? (albumContent[0].title || albumContent[0].name) : albumName}</span><br>
+                                <span style="overflow-wrap: anywhere">{sortingInfo[0] === "track" ? (albumContent[0].title || albumContent[0].name) : albumName}</span>
                                 {#if sortingInfo[0] === "album"}
-                                    <span style="color: var(--secondtext)">{(albumContent[0].albumArtist ?? lang("Unknown"))}</span>
+                                    <br>
+                                    <span style="color: var(--secondtext); overflow-wrap: anywhere">{(albumContent[0].albumArtist ?? lang("Unknown"))}</span>
                                 {/if}
                             </p>
                         </div>
@@ -728,6 +729,7 @@
 <style>
     .wrap {
         flex-wrap: wrap;
+        align-items: stretch;
     }
     .wrap > * {
         flex: 1 0 calc(var(--picture-height) + 30px);

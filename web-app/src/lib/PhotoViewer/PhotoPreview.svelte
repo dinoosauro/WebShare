@@ -13,6 +13,10 @@
     import lang from "../../ts/Lang";
     import Settings from "../../ts/Settings";
     import checkIfColorIsDark from "../../ts/CheckIfColorIsDark";
+    import icon2x from 'leaflet/dist/images/marker-icon-2x.png';
+    import icon from 'leaflet/dist/images/marker-icon.png';
+    import shadow from 'leaflet/dist/images/marker-shadow.png';
+
 
     const {token, sourceImage, data, callback, backFn, getLocationReload, nextImage, prevImage}: {
         token: string, 
@@ -79,6 +83,10 @@
      * Container of the location map
      */
     let leafletMap: HTMLElement;
+    /**
+     * Leaflet instance attached to the location map container
+     */
+    let locationMap: leaflet.Map | undefined;
     /**
      * Width and height of the video/image
      */
@@ -166,6 +174,11 @@
      */
     let locationReload = $state(Date.now());
     onMount(() => {
+        leaflet.Icon.Default.mergeOptions({
+            iconRetinaUrl: icon2x,
+            iconUrl: icon,
+            shadowUrl: shadow,
+        });
         function fullscreenEvent() {
             if (fullscreenIcon) fullscreenIcon.src = getIconSrc(document.fullscreenElement ? "fullscreenminimize" : "fullscreenmaximize");
         }
@@ -183,6 +196,7 @@
         window.addEventListener("keydown", keyboardEvent);
         getLocationReload(() => (locationReload = Date.now()));
         return () => {
+            locationMap?.remove();
             if (volumeFilter) volumeFilter.disconnect();
             if (context) context.close();
             window.removeEventListener("fullscreenchange", fullscreenEvent);
@@ -213,17 +227,16 @@
                 if (leafletMap) {
                     clearInterval(interval);
                     leafletMap.style.height = "30vh";
-                    // @ts-ignore
-                    leafletMap._leaflet_id = null;
-                    const map = leaflet.map(leafletMap).setView([+metadataPosition[0], +metadataPosition[1]], 13);
+                    locationMap?.remove();
+                    locationMap = leaflet.map(leafletMap).setView([+metadataPosition[0], +metadataPosition[1]], 13);
                     leaflet.tileLayer(Settings.photoViewer.locationMapStyle === "satellite" ? 'https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.{ext}' : `https://tiles.stadiamaps.com/tiles/alidade_smooth${(Settings.photoViewer.locationMapStyle === "default" && checkIfColorIsDark(getComputedStyle(document.body).getPropertyValue("--secondcard"))) || Settings.photoViewer.locationMapStyle === "dark" ? "_dark" : ""}/{z}/{x}/{y}{r}.{ext}`, {
                         minZoom: 0,
                         maxZoom: 20,
                         attribution: Settings.photoViewer.locationMapStyle === "satellite" ? '&copy; CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data) | &copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' : '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                         // @ts-ignore
                         ext: Settings.photoViewer.locationMapStyle === "satellite" ? "jpg" : "png"
-                    }).addTo(map);
-                    leaflet.marker([+metadataPosition[0], +metadataPosition[1]]).addTo(map)
+                    }).addTo(locationMap);
+                    leaflet.marker([+metadataPosition[0], +metadataPosition[1]]).addTo(locationMap)
                 }
             }, 15)
         }
@@ -244,7 +257,6 @@
             if (!res.ok) return;
             res.json().then((json) => {
                 metadata = json;
-                createLocationMap();
             })
         })
     });
@@ -470,7 +482,7 @@
         overflow: auto;
     }
 
-    img:not(.icon), video {
+    .imgContainer > img:not(.icon), video {
         width: 100%; height: auto; object-fit: contain; max-height: 100vh;
     }
 
@@ -491,7 +503,7 @@
             margin-top: 10px;
             overflow: unset;
         }
-        img:not(.icon), video {
+        .imgContainer > img:not(.icon), video {
             height: 100%; width: auto; max-width: 100vw; max-height: unset;
         }
     }
