@@ -1,5 +1,6 @@
 import checkIfColorIsDark from "./CheckIfColorIsDark";
 import { getIconSrc } from "./IconManager";
+import RegenerateIcons from "./RegenerateIcons";
 import Settings from "./Settings";
 import StartPath from "./StartPath";
 
@@ -19,7 +20,8 @@ export default async function ApplyTheming() {
             document.body.style.setProperty(`--${property}`, Settings.theme.colors[property]);
         }
     }
-    if (!checkIfColorIsDark(getComputedStyle(document.body).getPropertyValue("--background"))) document.body.style.setProperty("--transparency-filter", "brightness(150%) blur(8px)");
+    if (!checkIfColorIsDark(getComputedStyle(document.body).getPropertyValue("--background"))) document.body.style.setProperty("--transparency-filter", "brightness(150%) blur(8px)"); else document.body.style.removeProperty("--transparency-filter");
     const icon = await fetch(getIconSrc("globesync", getComputedStyle(document.body).getPropertyValue("--accent")));
     (document.querySelector("link[rel=icon]") as HTMLLinkElement).href = `data:image/svg+xml;base64,${btoa(await icon.text())}`;
+    RegenerateIcons.regenerateIcons();
 }

@@ -10,6 +10,7 @@
     import { getIconSrc } from "../ts/IconManager";
     import FileSystemApiHelper from "../ts/FileSystemApiHelper";
     import SettingsObject from "../ts/Settings"
+    import RegenerateIcons from "../ts/RegenerateIcons";
     const fileToUpload = $state<UploadProps[]>([]);
     const fileToDownload = $state<DownloadProps[]>([]);
     const {token}: {token: string | undefined} = $props();
@@ -91,13 +92,13 @@
         <button class="emptyBtn" onclick={() => {
             UploadFiles._startUpload && UploadFiles._startUpload([file], true);
         }}>
-            <img class="icon" src={getIconSrc("arrowclockwise")} alt={lang("Try again")}>
+            <img class="icon" use:RegenerateIcons.register={{icon: "arrowclockwise"}} alt={lang("Try again")}>
         </button>
         <button class="emptyBtn" onclick={() => {
             const index = fileToUpload.findIndex(i => i.id === file.id);
             if (index !== -1) fileToUpload.splice(index, 1);
         }}>
-            <img class="icon" src={getIconSrc("dismiss")} alt={lang("Dismiss")}>
+            <img class="icon"  use:RegenerateIcons.register={{icon: "dismiss"}} alt={lang("Dismiss")}>
         </button>
         {/if}
     </div>
@@ -120,13 +121,13 @@
         <button class="emptyBtn" onclick={() => {
             FileSystemApiHelper.pipeContent(file.url, file.name, file.file);
         }}>
-            <img class="icon" src={getIconSrc("arrowclockwise")} alt={lang("Try again")}>
+            <img class="icon" use:RegenerateIcons.register={{icon: "arrowclockwise"}} alt={lang("Try again")}>
         </button>
         <button class="emptyBtn" onclick={() => {
             const index = fileToUpload.findIndex(i => i.id === file.id);
             if (index !== -1) fileToUpload.splice(index, 1);
         }}>
-            <img class="icon" src={getIconSrc("dismiss")} alt={lang("Dismiss")}>
+            <img class="icon" use:RegenerateIcons.register={{icon: "dismiss"}} alt={lang("Dismiss")}>
         </button>
         {/if}
     </div>
@@ -145,7 +146,7 @@
         max-height: 45vh; 
         overflow: auto; 
         padding: 15px; 
-        backdrop-filter: blur(8px) brightness(40%);
+        backdrop-filter: var(--transparency-filter);
         border-radius: 12px;
         border: 1px solid var(--text);
     }

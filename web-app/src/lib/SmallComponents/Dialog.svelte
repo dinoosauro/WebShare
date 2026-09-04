@@ -4,6 +4,7 @@
     import { getIconSrc } from "../../ts/IconManager";
     import appendToBody from "../../ts/AppendToBody";
     import { onMount } from "svelte";
+    import RegenerateIcons from "../../ts/RegenerateIcons";
 
     const {children, callback}: {children: any, callback: () => void} = $props();
 
@@ -12,7 +13,7 @@
 <div class="dialog" use:appendToBody in:fade={{duration: 200, easing: cubicInOut}} out:fade={{duration: 200, easing: cubicInOut}}>
     <div class="dialogBack">
         <button class="emptyBtn flex hcenter" onclick={() => callback()}>
-            <img class="icon" src={getIconSrc("dismiss")} alt="Close dialog">
+            <img class="icon" use:RegenerateIcons.register={{icon: "dismiss"}} alt="Close dialog">
         </button>
     </div>
     <div class="dialogContent">
@@ -46,7 +47,7 @@
         top: 10vh; 
         right: calc(15vw);
         width: fit-content; 
-        backdrop-filter: blur(8px) brightness(50%); 
+        backdrop-filter: var(--transparency-filter); 
         padding: 5px; 
         border-radius: 50%; 
         border: 1px solid var(--text);

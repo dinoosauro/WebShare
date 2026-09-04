@@ -24,6 +24,7 @@
     import lang from "../../ts/Lang";
     import FileSystemApiHelper from "../../ts/FileSystemApiHelper";
     import PlaceholderToUpdate from "./PlaceholderToUpdate.svelte";
+    import RegenerateIcons from "../../ts/RegenerateIcons";
 
     const {token, albumView}: {
         token: string, 
@@ -421,7 +422,7 @@
         <button class="flex hcenter" style="padding: 5px; background-color: var(--card); width: fit-content; border-radius: 50%" onclick={() => {
             window.history.back();
             }}>
-            <img src={getIconSrc("arrowleft")} alt="Go back" class="icon">
+            <img use:RegenerateIcons.register={{icon: "arrowleft"}} alt="Go back" class="icon">
         </button>
         <h2>{selectedAlbum[0]}</h2>
     </div>

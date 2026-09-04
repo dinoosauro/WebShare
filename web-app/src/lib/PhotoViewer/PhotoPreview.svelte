@@ -16,6 +16,7 @@
     import icon2x from 'leaflet/dist/images/marker-icon-2x.png';
     import icon from 'leaflet/dist/images/marker-icon.png';
     import shadow from 'leaflet/dist/images/marker-shadow.png';
+    import RegenerateIcons from "../../ts/RegenerateIcons";
 
 
     const {token, sourceImage, data, callback, backFn, getLocationReload, nextImage, prevImage}: {
@@ -180,7 +181,7 @@
             shadowUrl: shadow,
         });
         function fullscreenEvent() {
-            if (fullscreenIcon) fullscreenIcon.src = getIconSrc(document.fullscreenElement ? "fullscreenminimize" : "fullscreenmaximize");
+            if (fullscreenIcon) RegenerateIcons.register(fullscreenIcon, {icon: (document.fullscreenElement ? "fullscreenminimize" : "fullscreenmaximize")});
         }
         
         function popstateEvent() {
@@ -270,12 +271,12 @@
         <div class="flex hcenter imgContainer" style="position: relative;" bind:this={imageViewer} onmouseenter={() => (showVideoControls = videoMetadataLoaded)} onmouseover={() => (showVideoControls = videoMetadataLoaded)} onmouseleave={() => (showVideoControls = false)} onclick={(e) => !(e.target as HTMLElement).closest(".videoControls") && (showVideoControls = !showVideoControls)}>
         <div style="left: 0px;" class="backForwardBtn">
             <button style="width: 100%; height: 100%;" class="emptyBtn" onclick={() => prevImage()}>
-                <img src={getIconSrc("arrowcircleleft")} alt={lang("Previous image")} style="margin-left: 15px; width: 36px; height: 36px">
+                <img use:RegenerateIcons.register={{icon: "arrowcircleleft"}} alt={lang("Previous image")} style="margin-left: 15px; width: 36px; height: 36px">
             </button>
         </div>
         <div style="right: 0px;" class="backForwardBtn">
             <button style="width: 100%; height: 100%" class="emptyBtn" onclick={() => nextImage()}>
-                <img src={getIconSrc("arrowcircleright")} alt={lang("Next image")} style="margin-right: 15px; width: 36px; height: 36px">
+                <img use:RegenerateIcons.register={{icon: "arrowcircleright"}} alt={lang("Next image")} style="margin-right: 15px; width: 36px; height: 36px">
             </button>
         </div>
             <img style="opacity: 0;" alt={data.name} src={sourceImage} bind:this={img} onload={(e) => {
@@ -349,19 +350,19 @@
                         <button class="emptyBtn flex hcenter backgroundChange" style={videoControlsSelectedBtn === "playbackrate" ? "background-color: var(--accent)" : undefined} in:fade={{duration: 300, easing: cubicInOut, delay: 300}} out:fade={{duration: 300, easing: cubicInOut}} onclick={() => {
                             videoControlsSelectedBtn = videoControlsSelectedBtn === "playbackrate" ? undefined : "playbackrate";
                         }}>
-                            <img src={getIconSrc("topspeed")} class="icon" alt={lang("Change playback rate")}>
+                            <img use:RegenerateIcons.register={{icon: "topspeed"}} class="icon" alt={lang("Change playback rate")}>
                         </button>
                         {/if}
                         {#if !videoControlsSelectedBtn}
                         <button class="emptyBtn flex hcenter backgroundChange" in:fade={{duration: 300, easing: cubicInOut, delay: 300}} out:fade={{duration: 300, easing: cubicInOut}} onclick={() => {
                             document.pictureInPictureElement ? document.exitPictureInPicture() : video.requestPictureInPicture();
                         }}>
-                            <img src={getIconSrc("pictureinpicture")} class="icon" alt={lang("Toggle picture-in-picture for this video")}>
+                            <img use:RegenerateIcons.register={{icon: "pictureinpicture"}} class="icon" alt={lang("Toggle picture-in-picture for this video")}>
                         </button>
                         <button class="emptyBtn flex hcenter backgroundChange" in:fade={{duration: 300, easing: cubicInOut, delay: 300}} out:fade={{duration: 300, easing: cubicInOut}} onclick={() => {
                             video.paused ? video.play() : video.pause();
                         }}>
-                            <img src={getIconSrc(isPaused ? "play" : "pause")} class="icon" alt={lang("Play/pause")}>
+                            <img use:RegenerateIcons.register={{icon: isPaused ? "play" : "pause"}} class="icon" alt={lang("Play/pause")}>
                         </button>
                         <button class="emptyBtn flex hcenter backgroundChange" in:fade={{duration: 300, easing: cubicInOut, delay: 300}} out:fade={{duration: 300, easing: cubicInOut}} onclick={() => {
                             if (document.fullscreenElement) document.exitFullscreen();
@@ -372,14 +373,14 @@
                             // @ts-ignore
                             if (typeof video.webkitEnterFullscreen === "function") video.webkitEnterFullscreen();
                         }}>
-                            <img src={getIconSrc(document.fullscreenElement ? "fullscreenminimize" : "fullscreenmaximize")} bind:this={fullscreenIcon} class="icon" alt={lang("Toggle fullscreen mode")}>
+                            <img use:RegenerateIcons.register={{icon: document.fullscreenElement ? "fullscreenminimize" : "fullscreenmaximize"}} bind:this={fullscreenIcon} class="icon" alt={lang("Toggle fullscreen mode")}>
                         </button>
                         {/if}
                         {#if !videoControlsSelectedBtn || videoControlsSelectedBtn === "volume"}
                         <button class="emptyBtn flex hcenter backgroundChange" style={videoControlsSelectedBtn === "volume" ? "background-color: var(--accent)" : undefined} in:fade={{duration: 300, easing: cubicInOut, delay: 300}} out:fade={{duration: 300, easing: cubicInOut}} onclick={() => {
                             videoControlsSelectedBtn = videoControlsSelectedBtn === "volume" ? undefined : "volume";
                         }}>
-                            <img src={getIconSrc("speakers")} class="icon" alt={lang("Change volume")}>
+                            <img use:RegenerateIcons.register={{icon: "speakers"}} class="icon" alt={lang("Change volume")}>
                         </button>
                         {/if}
                     </div>
@@ -428,14 +429,14 @@
                         {#each metadata as entry}
                         {#if entry.description === "Make" || entry.description === "Model" || entry.description === "Aperture Value" || entry.description === "Frame Rate" || entry.description === "Shutter Speed Value"}
                             <div class="flex hcenter gap">
-                                <img class="icon" alt={entry.description} src={getIconSrc(entry.description === "Make" ? "buildingfactory" : entry.description === "Model" ? "camera" : entry.description === "Aperture Value" ? "lightbulb" : entry.description === "Frame Rate" ? "personrunning" : "timer")}>
+                                <img class="icon" alt={entry.description} use:RegenerateIcons.register={{icon: entry.description === "Make" ? "buildingfactory" : entry.description === "Model" ? "camera" : entry.description === "Aperture Value" ? "lightbulb" : entry.description === "Frame Rate" ? "personrunning" : "timer"}}>
                                 <p><u>{entry.description}:</u> {entry.value}</p>
                             </div>
                         {/if}
                         {/each}
                         {#if contentSize}
                             <div class="flex hcenter gap">
-                                <img class="icon" alt={lang("Image size")} src={getIconSrc("resize")}>
+                                <img class="icon" alt={lang("Image size")} use:RegenerateIcons.register={{icon: "resize"}}>
                                 <p><u>{lang(`${data.mimeType.startsWith("video") ? "Video" : "Image"} size`)}:</u> {contentSize[0]}*{contentSize[1]} pixels</p>
                             </div>
                         {/if}

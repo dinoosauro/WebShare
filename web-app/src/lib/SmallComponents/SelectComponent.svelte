@@ -4,6 +4,7 @@
     import { getIconSrc } from "../../ts/IconManager";
     import lang from "../../ts/Lang";
     import { onMount } from "svelte";
+    import RegenerateIcons from "../../ts/RegenerateIcons";
     let {isMassSelectionEnabled, changeMassSelectionCallback, downloadCallback, deleteCallback, closeCallback}: {
         isMassSelectionEnabled: boolean,
         changeMassSelectionCallback: (e: boolean) => void
@@ -31,16 +32,16 @@
     <div class="flex hcenter gap">
         <p style="width: 100%;"><strong>{lang(`${isMassSelectionEnabled ? "Mass select" : "Select"} mode enabled`)}:</strong> {isMassSelectionEnabled ? lang("click two items, and all the elements between them will be selected") : lang("click on an item to select it")}.</p>
         <button class="emptyBtn flex hcenter" onclick={() => changeMassSelectionCallback(!isMassSelectionEnabled)}>
-            <img class="icon" src={getIconSrc(isMassSelectionEnabled ? "selectalloff" : "selectallon")} alt={lang("Toggle mass selection mode")}>
+            <img class="icon" use:RegenerateIcons.register={{icon: isMassSelectionEnabled ? "selectalloff" : "selectallon"}} alt={lang("Toggle mass selection mode")}>
         </button>
         <button class="emptyBtn flex hcenter" onclick={downloadCallback}>
-            <img class="icon" src={getIconSrc("arrowdownload")} alt={lang("Download files")}>
+            <img class="icon" use:RegenerateIcons.register={{icon: "arrowdownload"}} alt={lang("Download files")}>
         </button>
         <button class="emptyBtn flex hcenter" onclick={deleteCallback}>
-            <img class="icon" src={getIconSrc("delete")} alt={lang("Delete files")}>
+            <img class="icon" use:RegenerateIcons.register={{icon: "delete"}} alt={lang("Delete files")}>
         </button>
         <button class="emptyBtn flex hcenter" onclick={closeCallback}>
-            <img class="icon" src={getIconSrc("dismiss")} alt={lang("Disable select mode")}>
+            <img class="icon" use:RegenerateIcons.register={{icon: "dismiss"}} alt={lang("Disable select mode")}>
         </button>
     </div>
 </div>

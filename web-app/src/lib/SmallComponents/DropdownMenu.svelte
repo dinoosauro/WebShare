@@ -3,6 +3,7 @@
     import { getIconSrc } from "../../ts/IconManager";
     import type { DropdownMenu } from "../../ts/Interfaces/Website";
     import topBtnContainerTransition from "../../ts/TopButtonsTransition";
+    import RegenerateIcons from "../../ts/RegenerateIcons";
 
     const {dropdownInfo, callback, getContainer}: {
         /**
@@ -65,7 +66,7 @@
         {#each dropdownInfo as dropdownItem}
             <button class="emptyBtn flex hcenter" title={dropdownItem.title} onclick={() => btnCallback(dropdownItem)}>
             {#if dropdownItem.icon}
-                <img style={dropdownItem.customImgStyling} class="icon" src={getIconSrc(dropdownItem.icon)} alt={dropdownItem.title}>
+                <img style={dropdownItem.customImgStyling} class="icon" use:RegenerateIcons.register={{icon: dropdownItem.icon}} alt={dropdownItem.title}>
             {/if}
             </button>
 
@@ -75,7 +76,7 @@
         {#each selectedElement as element}
         <button class="emptyBtn flex hcenter gap verticalBtn" title={element.title} onclick={() => btnCallback(element)}>
             {#if element.icon}
-                <img style={element.customImgStyling} class="icon" src={getIconSrc(element.icon)} alt={element.title}>
+                <img style={element.customImgStyling} class="icon" use:RegenerateIcons.register={{icon: element.icon}} alt={element.title}>
             {/if}
             <p>{element.title}</p>
         </button>

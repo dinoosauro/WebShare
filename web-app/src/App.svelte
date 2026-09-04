@@ -52,6 +52,7 @@
     } else {localStorage.removeItem("WebShare-Token"); window.history.replaceState({}, "");}
     window.addEventListener("popstate", (e) => {
       if (e.state?.section) selectedSection = e.state?.section;
+      console.log(e.state?.section, selectedSection);
     })
   })
 
@@ -72,7 +73,7 @@
     <option value="photos">{lang("photos and videos")}</option>
     <option value="albums">{lang("albums")}</option>
     <option value="songs">{lang("songs")}</option>
-    <option value="file">{lang("files")}</option>
+    <option value="files">{lang("files")}</option>
   </select></h2>
 {#if selectedSection === "photos" || selectedSection === "albums"}
   <PhotoViewer albumView={selectedSection === "albums"} token={token as string}></PhotoViewer>

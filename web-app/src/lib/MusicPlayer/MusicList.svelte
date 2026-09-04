@@ -21,6 +21,7 @@
     import convertNumberToStr from "../../ts/ConvertNumberToString";
     import { getIconSrc } from "../../ts/IconManager";
     import FileSystemApiHelper from "../../ts/FileSystemApiHelper";
+    import RegenerateIcons from "../../ts/RegenerateIcons";
 
     const {token}: {token: string} = $props();
 
@@ -351,7 +352,7 @@
 }}>
     <div class="flex hcenter gap">
         {#if tableSelection[0] === propToChange}
-            <img class="icon" src={getIconSrc(tableSelection[1] ? "arrowup" : "arrowdown", getComputedStyle(document.body).getPropertyValue("--accenttext"))} alt={lang("Sorted by this column")}>
+            <img class="icon" use:RegenerateIcons.register={{icon: tableSelection[1] ? "arrowup" : "arrowdown", type: getComputedStyle(document.body).getPropertyValue("--accenttext")}} alt={lang("Sorted by this column")}>
         {/if}
         {title}
     </div>

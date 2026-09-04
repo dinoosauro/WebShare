@@ -5,6 +5,8 @@
     import PlayAudio from "../../ts/PlayAudio";
     import { getIconSrc } from "../../ts/IconManager";
     import lang from "../../ts/Lang";
+    import checkIfColorIsDark from "../../ts/CheckIfColorIsDark";
+    import RegenerateIcons from "../../ts/RegenerateIcons";
 
     const {name, songs, token, viewCallback, type, src}: {
         /**
@@ -43,14 +45,14 @@
 
 
 
-<div class="main opacity" style="overflow: auto; opacity: 0" bind:this={main}>
-    <img style="width: 100vw; height: 100vh; position: fixed; z-index: -1; filter: blur(32px) brightness(30%); object-fit: cover" {src} alt={lang("Background album art")}>
-    <button class="flex hcenter emptyBtn" style="padding: 5px; backdrop-filter: blur(8px) brightness(80%); position: fixed; top: 15px; left: 15px; width: fit-content; border-radius: 50%; border: 1px solid var(--text)" onclick={() => {
+<div class="main opacity applyFilter" style="overflow: auto; opacity: 0" bind:this={main}>
+    <img style="width: 100vw; height: 100vh; position: fixed; z-index: -1; filter: blur(32px); object-fit: cover" {src} alt={lang("Background album art")}>
+    <button class="flex hcenter emptyBtn" style="padding: 5px; backdrop-filter: var(--transparency-filter); position: fixed; top: 15px; left: 15px; width: fit-content; border-radius: 50%; border: 1px solid var(--text)" onclick={() => {
         window.history.back();
     }}>
-        <img src={getIconSrc("arrowleft")} alt={lang("Go back")} class="icon">
+        <img use:RegenerateIcons.register={{icon: "arrowleft"}} alt={lang("Go back")} class="icon">
     </button>
-    <div style="overflow: auto; padding: 25px;">
+    <div style={`overflow: auto; padding: 25px; ${!checkIfColorIsDark(getComputedStyle(document.body).getPropertyValue("--background")) ? "--filter: invert(1) hue-rotate(180deg)" : ""}`}>
         <div class="flex hcenter wcenter" style="margin-top: 10px;">
             <div>
                 <img bind:this={img} style="max-width: 40vw; max-height: 40vh; border-radius: 12px;" alt="Album art" onload={async () => {
@@ -90,10 +92,10 @@
                     <p style="width: fit-content; width: 35px; text-align: left; color: var(--secondtext)">
                         {song.cdTrack}.
                     </p>
-                    <p style="width: 100%; text-align: left;">
-                        {song.title || song.name}<br>
-                        <span style="color: var(--secondtext);">{song.artist}</span>
-                    </p>
+                    <div style="width: 100%; text-align: left;">
+                        <p style="margin: 0;">{song.title || song.name}</p>
+                        <p style="color: var(--secondtext); margin: 0">{song.artist}</p>
+                    </div>
                     <p style="width: fit-content; margin-left: 15px; color: var(--secondtext)">
                         {convertNumberToStr((song.duration ?? 0) / 1000)}
                     </p>
@@ -103,3 +105,9 @@
         </div>
     </div>
 </div>
+
+<style>
+    .applyFilter h2, .applyFilter h3, .applyFilter span, .applyFilter p {
+        filter: var(--filter);
+    }
+</style>

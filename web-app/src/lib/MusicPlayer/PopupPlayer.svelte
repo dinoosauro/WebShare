@@ -14,6 +14,7 @@
     import lang from "../../ts/Lang";
     import appendToBody from "../../ts/AppendToBody";
     import StartPath from "../../ts/StartPath";
+    import RegenerateIcons from "../../ts/RegenerateIcons";
 
     const {token}: {token: string} = $props();
     /**
@@ -67,8 +68,8 @@
                     durationSpan.textContent = convertNumberToStr(info.info.duration / 1000);
                 }
             }
-            if (info.paused) playIcon.src = getIconSrc("play");
-            if (info.playing) playIcon.src = getIconSrc("pause");
+            if (info.paused) RegenerateIcons.register(playIcon, {icon: "play"});
+            if (info.playing) RegenerateIcons.register(playIcon, {icon: "pause"});
             if ((typeof info.duration !== "undefined" || typeof info.position !== "undefined") && audioSlider && !isAudioSliderClickInProgress) {
                 if (typeof info.position !== "undefined") {
                     audioSlider.value = info.position.toString();
@@ -123,12 +124,12 @@
         skipPlaybacksOfId = PlayAudio.currentReproductionId;
         currentInfo = undefined;
     }}>
-        <img src={getIconSrc("dismiss")} class="icon" style="width: 16px; height: 16px" alt={lang("Close dialog")}>
+        <img use:RegenerateIcons.register={{icon: "dismiss"}} class="icon" style="width: 16px; height: 16px" alt={lang("Close dialog")}>
     </button>
     <button class="emptyBtn" style="position: absolute; right: 35px; top: 15px" onclick={(e) => {
         volumeButtonPosition = (e.target as HTMLElement).getBoundingClientRect();
     }}>
-        <img src={getIconSrc("speakers")} class="icon" style="width: 16px; height: 16px" alt={lang("Change volume")}>
+        <img use:RegenerateIcons.register={{icon: "speakers"}} class="icon" style="width: 16px; height: 16px" alt={lang("Change volume")}>
     </button>
     <div class="flex hcenter gap" style="gap: 25px;">
         <div >
@@ -164,30 +165,30 @@
             <div class="flex hcenter wcenter gap" style="width: 100%;">
                 <button class="emptyBtn" onclick={(e: Event) => {
                     PlayAudio.shuffle = !PlayAudio.shuffle;
-                    (e.target as HTMLImageElement).src = getIconSrc(PlayAudio.shuffle ? "shuffle" : "shuffleoff");
+                    RegenerateIcons.register((e.target as HTMLImageElement), {icon: (PlayAudio.shuffle ? "shuffle" : "shuffleoff")});
                 }}>
-                    <img src={getIconSrc(PlayAudio.shuffle ? "shuffle" : "shuffleoff")} class="icon" alt={lang("Enable/disable shuffle")}>
+                    <img use:RegenerateIcons.register={{icon: PlayAudio.shuffle ? "shuffle" : "shuffleoff"}} class="icon" alt={lang("Enable/disable shuffle")}>
                 </button>
                 <button class="emptyBtn" onclick={() => {
                     PlayAudio.prev();
                 }}>
-                    <img src={getIconSrc("previous")} class="icon" alt={lang("Previous track")}>
+                    <img use:RegenerateIcons.register={{icon: "previous"}} class="icon" alt={lang("Previous track")}>
                 </button>
                 <button class="emptyBtn" onclick={() => {
                     PlayAudio.audio.paused ? PlayAudio.audio.play() : PlayAudio.audio.pause();
                 }}>
-                    <img bind:this={playIcon} src={getIconSrc("pause")} class="icon" alt={lang("Play/pause")}>
+                    <img bind:this={playIcon} use:RegenerateIcons.register={{icon: "pause"}} class="icon" alt={lang("Play/pause")}>
                 </button>
                 <button class="emptyBtn" onclick={() => {
                     PlayAudio.next();
                 }}>
-                    <img src={getIconSrc("next")} class="icon" alt={lang("Next track")}>
+                    <img use:RegenerateIcons.register={{icon: "next"}} class="icon" alt={lang("Next track")}>
                 </button>
                 <button class="emptyBtn" onclick={(e: Event) => {
                     PlayAudio.repeat = PlayAudio.repeat === "no" ? "yes" : PlayAudio.repeat === "yes" ? "single" : "no";
-                    (e.target as HTMLImageElement).src = getIconSrc(PlayAudio.repeat === "no" ? "repeatalloff" : PlayAudio.repeat === "yes" ? "repeatall" : "repeat1");
+                    RegenerateIcons.register((e.target as HTMLImageElement), {icon: PlayAudio.repeat === "no" ? "repeatalloff" : PlayAudio.repeat === "yes" ? "repeatall" : "repeat1"});
                 }}>
-                    <img src={getIconSrc(PlayAudio.repeat === "no" ? "repeatalloff" : PlayAudio.repeat === "yes" ? "repeatall" : "repeat1")} class="icon" alt={lang("Toggle between repeat options")}>
+                    <img use:RegenerateIcons.register={{icon: PlayAudio.repeat === "no" ? "repeatalloff" : PlayAudio.repeat === "yes" ? "repeatall" : "repeat1"}} class="icon" alt={lang("Toggle between repeat options")}>
                 </button>
             </div>
         </div>
@@ -204,7 +205,7 @@
             }]]} max={2} step={0.01} defaultValue={1}></InputRange>
         </div>
         <button class="emptyBtn" onclick={() => (volumeButtonPosition = undefined)}>
-            <img class="icon" src={getIconSrc("dismiss")} alt={lang("Close dialog")}>
+            <img class="icon" use:RegenerateIcons.register={{icon: "dismiss"}} alt={lang("Close dialog")}>
         </button>
     </div>
 </div>
@@ -218,7 +219,7 @@
         width: calc(70vw - 15px);
         padding: 15px;
         border-radius: 16px;
-        backdrop-filter: blur(8px) brightness(50%);
+        backdrop-filter: var(--transparency-filter);
         position: fixed;
         left: 15vw;
         z-index: 10;

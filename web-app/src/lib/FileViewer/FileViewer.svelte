@@ -18,6 +18,7 @@
     import StartPath from "../../ts/StartPath";
     import lang from "../../ts/Lang";
     import FileSystemApiHelper from "../../ts/FileSystemApiHelper";
+    import RegenerateIcons from "../../ts/RegenerateIcons";
 
     const {token}: {token: string} = $props();
 
@@ -483,7 +484,7 @@
         <button class="flex hcenter" style="padding: 5px; background-color: var(--secondcard); width: fit-content; border-radius: 50%" onclick={() => {
             window.history.back();
         }}>
-            <img src={getIconSrc("arrowleft")} alt={lang("Go back")} class="icon">
+            <img use:RegenerateIcons.register={{icon: "arrowleft"}} alt={lang("Go back")} class="icon">
         </button>
         {/if}  
         <h3 style="overflow-wrap: anywhere;">{currentPath[1] ? (() => { // Edit the content uri string so that it's more readable
@@ -510,7 +511,7 @@
                     }}>
                     <div class="flex hcenter gap">
                         {#if sortingInfo[0] === "name"}
-                        <img class="icon" src={getIconSrc(sortingInfo[1] ? "arrowdown" : "arrowup", getComputedStyle(document.body).getPropertyValue("--accenttext"))} alt={lang("Sorted by this column")}>
+                        <img class="icon" use:RegenerateIcons.register={{icon: sortingInfo[1] ? "arrowdown" : "arrowup", type: getComputedStyle(document.body).getPropertyValue("--accenttext")}} alt={lang("Sorted by this column")}>
                         {/if}
                         {lang("File name")}:
                     </div>
@@ -521,7 +522,7 @@
                     }}>
                         <div class="flex hcenter gap">
                             {#if sortingInfo[0] === "lastModified"}
-                            <img class="icon" src={getIconSrc(sortingInfo[1] ? "arrowup" : "arrowdown", getComputedStyle(document.body).getPropertyValue("--accenttext"))} alt={lang("Sorted by this column")}>
+                            <img class="icon" use:RegenerateIcons.register={{icon:  sortingInfo[1] ? "arrowup" : "arrowdown", type: getComputedStyle(document.body).getPropertyValue("--accenttext")}} alt={lang("Sorted by this column")}>
                             {/if}
                             {lang("Last modified date")}:
                         </div>
@@ -533,7 +534,7 @@
                     }}>
                         <div class="flex hcenter gap">
                             {#if sortingInfo[0] === "size"}
-                            <img class="icon" src={getIconSrc(sortingInfo[1] ? "arrowup" : "arrowdown", getComputedStyle(document.body).getPropertyValue("--accenttext"))} alt={lang("Sorted by this column")}>
+                            <img class="icon" use:RegenerateIcons.register={{icon:  sortingInfo[1] ? "arrowup" : "arrowdown", type: getComputedStyle(document.body).getPropertyValue("--accenttext")}} alt={lang("Sorted by this column")}>
                             {/if}
                             {lang("File size")}:
                         </div>
@@ -545,7 +546,7 @@
                     }}>
                     <div class="flex hcenter gap">
                         {#if sortingInfo[0] === "mimetype"}
-                        <img class="icon" src={getIconSrc(sortingInfo[1] ? "arrowdown" : "arrowup", getComputedStyle(document.body).getPropertyValue("--accenttext"))} alt={lang("Sorted by this column")}>
+                        <img class="icon" use:RegenerateIcons.register={{icon:  sortingInfo[1] ? "arrowup" : "arrowdown", type: getComputedStyle(document.body).getPropertyValue("--accenttext")}} alt={lang("Sorted by this column")}>
                         {/if}
                         {lang("File mimetype")}:
                     </div>
@@ -562,7 +563,7 @@
                                 {#if (SettingsObject.fileViewer.showImagePreview && (file.mimeType?.startsWith("image") || file.mimeType?.startsWith("video"))) || (SettingsObject.fileViewer.showAudioPreview && file.mimeType?.startsWith("audio")) || (SettingsObject.fileViewer.showPdfPreview && file.mimeType === "application/pdf")}
                                     <ImageIntersectionViewer useHeightProportion={true} imageBackgroundColor={file.mimeType === "application/pdf" ? "white" : undefined} name={file.path} imagePreviewUrl={`${StartPath}/api/getPreview?path=${encodeURIComponent(file.fileContentUri || `${currentPath[0]}${file.path}`)}&isContentUri=${file.fileContentUri ? "1" : "0"}&type=${encodeURIComponent(file.mimeType)}&token=${encodeURIComponent(token)}`}></ImageIntersectionViewer>
                                 {:else}
-                                    <img class="icon" style="pointer-events: none;" src={getIconSrc(getImageToUse(file) as "document")} alt={"File icon"}>
+                                    <img class="icon" style="pointer-events: none;" use:RegenerateIcons.register={{icon: getImageToUse(file) as "document"}} alt={"File icon"}>
                                 {/if}
                                 <span style="pointer-events: none;">{file.path}</span>
                             </div>
@@ -593,7 +594,7 @@
             {#if SettingsObject.fileViewer.showImagePreview && (file.mimeType?.startsWith("image") || file.mimeType?.startsWith("video"))}
                 <ImageIntersectionViewer useHeightProportion={true} name={file.path} imagePreviewUrl={`${StartPath}/api/getPreview?path=${encodeURIComponent(file.fileContentUri || `${currentPath[0]}${file.path}`)}&isContentUri=${file.fileContentUri ? "1" : "0"}&type=${encodeURIComponent(file.mimeType)}&token=${encodeURIComponent(token)}`}></ImageIntersectionViewer>
             {:else}
-                <img class="icon" src={getIconSrc(getImageToUse(file) as "document")} alt={lang("File icon")}>
+                <img class="icon" use:RegenerateIcons.register={{icon: getImageToUse(file) as "document"}} alt={lang("File icon")}>
             {/if}
             <p style="overflow-wrap: anywhere; pointer-events: none; width: 100%; flex: 1">
                 <span style="color: var(--text); overflow-wrap: anywhere">{file.path}</span>

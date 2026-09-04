@@ -217,7 +217,7 @@ public class Server extends NanoHTTPD {
                     ArrayList<String> queryStr = new ArrayList<>(Arrays.asList(MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATE_ADDED, MediaStore.Audio.Media.DATE_MODIFIED, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.ALBUM_ARTIST, MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.COMPOSER, MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.YEAR, MediaStore.Audio.Media.ALBUM_ID, MediaStore.Audio.Media.DURATION));
                     // MediaStore's metadata varies version by version, so we can query some columns only if we're above a certain version.
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) queryStr.add(MediaStore.Audio.Media.GENRE);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                         queryStr.add(MediaStore.Audio.Media.BITRATE);
                         queryStr.add(MediaStore.Audio.Media.CD_TRACK_NUMBER);
                         queryStr.add(MediaStore.Audio.Media.DISC_NUMBER);

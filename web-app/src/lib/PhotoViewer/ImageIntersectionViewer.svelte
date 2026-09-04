@@ -66,8 +66,8 @@
             setTimeout(() => ((e.target as HTMLImageElement).src = imagePreviewUrl), 1000);
         }} style={`${useHeightProportion ? "width" : "height"}: calc(var(--picture-height) - var(--border-size) - var(--border-size)); object-fit: cover; border-radius: 12px; pointer-events: none; ${useHeightProportion ? "height" : "width"}: calc(var(--picture-height) * var(--width-proportion));${imageBackgroundColor ? ` background-color: ${imageBackgroundColor};` : ""}`}>
         {#if duration}
-        <div style="position: absolute; bottom: 15px; left: 15px; backdrop-filter: brightness(50%) blur(8px); padding: 10px; border-radius: 12px" class="flex hcenter gap">
-            <img src={getIconSrc("play")} alt="Video">
+        <div style="position: absolute; bottom: 15px; left: 15px; backdrop-filter: var(--transparency-filter); padding: 10px; border-radius: 12px" class="flex hcenter gap">
+            <img use:RegenerateIcons.register={{icon: "play"}} alt="Video">
             <span>{convertNumberToStr(duration)}</span>
         </div>
         {/if}
