@@ -16,7 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class CheckUpdates {
-    public static String versionNumber = "1.0.2";
+    public static String versionNumber = "1.0.3";
 
     /**
      * Check if updates are available, and, if so, show an alert

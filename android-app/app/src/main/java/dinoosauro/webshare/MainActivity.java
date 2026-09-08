@@ -137,22 +137,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         findViewById(R.id.stop).setOnClickListener(view -> {
-            WebShare.getServer().stopServer();
-            findViewById(R.id.ongoingContainer).setVisibility(View.GONE);
-            findViewById(R.id.startContainer).setVisibility(View.VISIBLE);
+            stopServerWrapper();
         });
         findViewById(R.id.authentication).setOnClickListener(view -> { // Get an authorization code to log in
-            try {
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle(getResources().getString(R.string.authorization_code))
-                        .setMessage(getResources().getString(R.string.authorization_code_dialog_desc, "\n\n" + WebShare.getServer().generateAuthenticationCode()))
-                        .setPositiveButton(getResources().getString(R.string.done), (dialogInterface, i) -> {})
-                        .setOnDismissListener(dialogInterface -> {
-                            WebShare.getServer().removeAuthenticationCode();
-                        }).show();
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException(e);
-            }
+           showAuthorizationLoginDialog();
         });
 
         // Permit to pick a directory so that it can become readable (ex: it's an external device, or it's a SAF device)
@@ -183,6 +171,58 @@ public class MainActivity extends AppCompatActivity {
         for (String addedExternalDrive: new AvailableDirectories(null, getApplicationContext()).availableContext) createChip(addedExternalDrive);
         CheckUpdates.checkUpdates(this);
         ((TextView) findViewById(R.id.versionNumber)).setText(getResources().getString(R.string.webshare_version, CheckUpdates.versionNumber));
+        handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) { // The user might have clicked on one of the two buttons of the foreground notification
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    /**
+     * Read the `foregroundNotificationCmd` property of the Intent so that, if the user has clicked one of the buttons of the foreground notification, an action can be done.
+     * @param intent
+     */
+    private void handleIntent(Intent intent) {
+        String request = intent.getStringExtra("foregroundNotificationCmd");
+        if (request == null) return;
+        switch(request) {
+            case "loginAuth":
+                showAuthorizationLoginDialog();
+                break;
+            case "stopServer":
+                stopServerWrapper();
+                break;
+        }
+    }
+
+    /**
+     * Stop the server, and update the UI.
+     */
+    private void stopServerWrapper() {
+        WebShare.getServer().stopServer();
+        findViewById(R.id.ongoingContainer).setVisibility(View.GONE);
+        findViewById(R.id.startContainer).setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Show the "Authorize new logins" dialog
+     */
+    private void showAuthorizationLoginDialog() {
+        try {
+            Server server = WebShare.getServer();
+            if (server == null) return;
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(getResources().getString(R.string.authorization_code))
+                    .setMessage(getResources().getString(R.string.authorization_code_dialog_desc, "\n\n" + server.generateAuthenticationCode()))
+                    .setPositiveButton(getResources().getString(R.string.done), (dialogInterface, i) -> {})
+                    .setOnDismissListener(dialogInterface -> {
+                        server.removeAuthenticationCode();
+                    }).show();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

@@ -1,5 +1,6 @@
 package dinoosauro.webshare;
 
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -181,10 +182,13 @@ public class Server extends NanoHTTPD {
                         return corsFixedLengthResponse(Response.Status.OK, "text/plain", token);
                     } else return corsFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Invalid authentication key");
                 }
-                case "/getImages": case "/getVideos": { // Get either all the images or all the videos on the user' sdevice
+                case "/getImages": case "/getVideos": { // Get either all the images or all the videos on the user's device
+                    ArrayList<String> queryStr = new ArrayList<>(Arrays.asList(MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.SIZE, MediaStore.Images.Media.MIME_TYPE, MediaStore.Images.Media.DATE_TAKEN, MediaStore.Images.Media.DATE_MODIFIED, MediaStore.Images.Media.DATE_ADDED, MediaStore.Images.Media.WIDTH, MediaStore.Images.Media.HEIGHT, Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? MediaStore.Images.Media.RELATIVE_PATH : MediaStore.Images.Media.DATA));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) queryStr.add(MediaStore.Images.Media.IS_FAVORITE); // Since it's available only on new devices
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) queryStr.add(MediaStore.Video.Media.DURATION);
                     try (Cursor cursor = context.getContentResolver().query(
                             getMediaStoreUri(lastPath.equals("/getVideos") ? AvailableMediaStoreUriTypes.VIDEO : AvailableMediaStoreUriTypes.IMAGE),
-                            new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.SIZE, MediaStore.Images.Media.MIME_TYPE, MediaStore.Images.Media.DATE_TAKEN, MediaStore.Images.Media.DATE_MODIFIED, MediaStore.Images.Media.DATE_ADDED, MediaStore.Images.Media.WIDTH, MediaStore.Images.Media.HEIGHT, Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? MediaStore.Images.Media.RELATIVE_PATH : MediaStore.Images.Media.DATA, MediaStore.Video.Media.DURATION},
+                            queryStr.toArray(new String[0]),
                             null,
                             null,
                             MediaStore.Files.FileColumns.DATE_ADDED + " DESC"
@@ -200,10 +204,11 @@ public class Server extends NanoHTTPD {
                         int heightColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.HEIGHT);
                         int relativePathColumn = cursor.getColumnIndex(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? MediaStore.Images.Media.RELATIVE_PATH : MediaStore.Images.Media.DATA);
                         int durationColumn = cursor.getColumnIndex(MediaStore.Video.Media.DURATION);
+                        int isFavoriteColumn = cursor.getColumnIndex(MediaStore.Images.Media.IS_FAVORITE);
                         ArrayList<ImageInfo> imageInfoList = new ArrayList<>();
                         while (cursor.moveToNext()) {
                             long id = cursor.getLong(idColumn);
-                            imageInfoList.add(new ImageInfo(id, cursor.getString(nameColumn), cursor.getLong(dateColumn), cursor.getLong(sizeColumn), cursor.getLong(takenColumn), cursor.getString(mimetypeColumn), cursor.getLong(dateAddedColumn), cursor.getLong(widthColumn),cursor.getLong(heightColumn), relativePathColumn != -1 ? cursor.getString(relativePathColumn) : null, cursor.getLong(durationColumn)));
+                            imageInfoList.add(new ImageInfo(id, cursor.getString(nameColumn), cursor.getLong(dateColumn), cursor.getLong(sizeColumn), cursor.getLong(takenColumn), cursor.getString(mimetypeColumn), cursor.getLong(dateAddedColumn), cursor.getLong(widthColumn),cursor.getLong(heightColumn), relativePathColumn != -1 ? cursor.getString(relativePathColumn) : null, durationColumn == -1 ? null : cursor.getLong(durationColumn), isFavoriteColumn == -1 ? null : cursor.getInt(isFavoriteColumn) == 1));
                         }
                         return corsFixedLengthResponse(Response.Status.OK, "application/json", new Gson().toJson(imageInfoList));
                     } catch (Exception ex) {
@@ -367,6 +372,21 @@ public class Server extends NanoHTTPD {
                         }
                     }
                     return corsFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Missing parameters");
+                }
+                case "/addfavorites": { // Add or remove an element to the MediaStore's favorite list
+                    Map<String, List<String>> params = session.getParameters();
+                    String id = getParameter(params, "id");
+                    if (id != null) {
+                        Uri imageUri = ContentUris.withAppendedId(getMediaStoreUri(Objects.equals(getParameter(params, "isVideo"), "1") ? AvailableMediaStoreUriTypes.VIDEO : AvailableMediaStoreUriTypes.IMAGE), Long.parseLong(id));
+                        PendingIntent intent = MediaStore.createFavoriteRequest(context.getContentResolver(), List.of(imageUri), Objects.equals(getParameter(params, "favorite"), "1"));
+                        try {
+                            intent.send();
+                        } catch (PendingIntent.CanceledException e) {
+                            return corsFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "Error while toggling favorites");
+                        }
+                        return corsFixedLengthResponse(Response.Status.OK, "text/plain", "");
+                    }
+                    return corsFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Missing required fields");
                 }
                 case "/metadata": { // Get the metadata of a video or image
                     Map<String, List<String>> params = session.getParameters();

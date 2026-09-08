@@ -36,7 +36,7 @@ export default async function imageOpenTransition(sourceImage: HTMLImageElement,
     if (!isClosing) {
         destionationImage.style.opacity = "1";
     }
-    await new Promise((res) => setTimeout(res, 210));
+    await new Promise(res => newImage.animate([{opacity: 1}, {opacity: 0}], {easing: "ease-in-out", duration: 210}).addEventListener("finish", res));
     newImage.remove();
     document.body.style.overflow = "";
 }

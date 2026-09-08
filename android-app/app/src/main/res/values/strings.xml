@@ -36,4 +36,6 @@
     <string name="webshare_version">WebShare • Version %1$s</string>
     <string name="opensource">You can find the open source licenses list in the web app\'s settings.</string>
     <string name="thirdparty_clients">Allow third-party clients to access to WebShare. This will enable CORS for this server.</string>
+    <string name="foreground_login_auth">Authorize new logins</string>
+    <string name="foreground_stop_server">Stop the server</string>
 </resources>

@@ -12,8 +12,9 @@ public class ImageInfo {
     public Long height;
     public String relativePath;
     public Long duration;
+    public Boolean isFavorite;
 
-    public ImageInfo(Long id, String name, Long dateModified, Long size, Long dateTaken, String mimeType, Long dateAdded, Long width, Long height, String relativePath, Long duration) {
+    public ImageInfo(Long id, String name, Long dateModified, Long size, Long dateTaken, String mimeType, Long dateAdded, Long width, Long height, String relativePath, Long duration, Boolean isFavorite) {
         this.id = id;
         this.name = name;
         this.dateTaken = dateTaken;
@@ -25,6 +26,7 @@ public class ImageInfo {
         this.height = height;
         this.relativePath = relativePath;
         this.duration = duration;
+        this.isFavorite = isFavorite;
     }
 
 }

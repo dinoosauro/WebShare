@@ -102,26 +102,37 @@
     function divideImagesByFolder(images: typeof imageState) {
         let outputObject: {[albumName: string]: {[year: string]: MediaInfo[][][]}} = {};
         let firstElementOf: {[albumName: string]: MediaInfo} = {};
+        /**
+         * If the client has sent the `isFavorite` property, the user is using an Android version that supports adding images/videos as favorites. We also need to check that the property is true at least for one image, since otherwise creating a Favorites folder would be useless
+         */
+        const areFavoritesEnabled = images.flat(4).some(i => typeof i !== "string" && i.isFavorite);
+        /**
+         * To avoid mixing "real" favorites and the files the user has in a hypotetical folder called "Favorites", we'll generate a random name that'll be used to store all the favorites. The probability the user will have a folder called this should be quite low.
+         */
+        const favoriteStr = `${Math.random()}-${Math.random()}-Favorites-${Math.random()}-${Math.random()}`;
+        if (areFavoritesEnabled) outputObject[favoriteStr] = {}; // Let's add the Favorites folder immediately so that it'll be the first in the list
         for (const [year, yearImages] of images) {
             for (let month = 0; month < yearImages.length; month++) {
                 if (typeof yearImages[month] === "undefined") continue;
                 for (let day = 0; day < yearImages[month].length; day++) {
                     if (typeof yearImages[month][day] === "undefined") continue;
                     for (const image of yearImages[month][day]) {
-                        const relPath = getRelativePathName(image.relativePath ?? "No album");
-                        if (!firstElementOf[relPath]) firstElementOf[relPath] = image;
-                        if (!outputObject[relPath]) outputObject[relPath] = {};
-                        if (!outputObject[relPath][year]) outputObject[relPath][year] = [];
-                        if (!outputObject[relPath][year][month]) outputObject[relPath][year][month] = [];
-                        if (!outputObject[relPath][year][month][day]) outputObject[relPath][year][month][day] = [];
-                        outputObject[relPath][year][month][day].push(image);
+                        const relPath = getRelativePathName(image.relativePath ?? lang("No album"));
+                        for (const elementToAdd of [...(areFavoritesEnabled && image.isFavorite ? [favoriteStr] : []), relPath]) {
+                            if (!firstElementOf[elementToAdd]) firstElementOf[elementToAdd] = image;
+                            if (!outputObject[elementToAdd]) outputObject[elementToAdd] = {};
+                            if (!outputObject[elementToAdd][year]) outputObject[elementToAdd][year] = [];
+                            if (!outputObject[elementToAdd][year][month]) outputObject[elementToAdd][year][month] = [];
+                            if (!outputObject[elementToAdd][year][month][day]) outputObject[elementToAdd][year][month][day] = [];
+                            outputObject[elementToAdd][year][month][day].push(image);
+                        }
                     }
                 }
             } 
         }
         const outputEntries: {[albumName: string]: typeof imageState} = {};
         for (const key in outputObject) outputEntries[key] = Object.entries(outputObject[key]).sort((a, b) => +b[0] - +a[0]);
-        const entries = Object.entries(outputEntries).map(i => [...i, firstElementOf[i[0]]]);
+        const entries = Object.entries(outputEntries).map(i => [i[0] === favoriteStr ? lang("Favorites") : i[0], i[1], firstElementOf[i[0]]]);
         return entries as [string, [string, MediaInfo[][][]][], MediaInfo][];
     }
     /**
@@ -501,7 +512,7 @@
                                     }
                                     openedImage = [image, (e.target as HTMLElement).firstChild?.firstChild as HTMLImageElement]
                                 }}>
-                                    <ImageIntersectionViewer imagePreviewUrl={getPreviewUrl(image)} name={image.name} duration={showIconsForVideos && image.mimeType.startsWith("video") && typeof image.duration !== "undefined" ? image.duration / 1000 : undefined} suggestedProportion={typeof image.width === "number" && typeof image.height === "number" ? image.width / image.height : undefined}></ImageIntersectionViewer>
+                                    <ImageIntersectionViewer isFavorite={image.isFavorite} imagePreviewUrl={getPreviewUrl(image)} name={image.name} duration={showIconsForVideos && image.mimeType.startsWith("video") && typeof image.duration !== "undefined" ? image.duration / 1000 : image.mimeType.startsWith("video") ? true : undefined} suggestedProportion={typeof image.width === "number" && typeof image.height === "number" ? image.width / image.height : undefined}></ImageIntersectionViewer>
                                 </button>
                                 {:else if getImageLength(image.id) === loadedItems}
                                     <PlaceholderToUpdate callback={() => (loadedItems += 50)}></PlaceholderToUpdate>
@@ -619,7 +630,7 @@
     const prevElement = currentImg === 0 ? entries[entries.length - 1] : entries[currentImg - 1];
     openedImage[0] = prevElement[1];
 }} getLocationReload={(fn) => (rerenderLocationMap = fn)} 
-backFn={async (image, main, isFromDelete) => {
+backFn={async (image, main, deletedElements) => {
     if (!openedImage) return;
     let img = openedImage[1];
     // Since the user might have changed the image from the PhotoPreview component, we'll try fetching the current image again
@@ -633,9 +644,16 @@ backFn={async (image, main, isFromDelete) => {
         await new Promise(res => setTimeout(res, 50));
     }
     await imageOpenTransition(image, img, main, true);
-    if (isFromDelete && openedImage) {
-        const index = images.findIndex(j => j.id == (openedImage as [MediaInfo, HTMLImageElement])[0].id);
-        if (index !== -1) images.splice(index, 1);
+    // Now let's remove from the DOM the images that have been deleted
+    const availableImages = Array.from(imageBtnsAvailable);
+    for (const deletedImage of deletedElements) {
+        const index = images.indexOf(deletedImage);
+        const buttonElement = availableImages.find(i => i[1] === deletedImage);
+        if (buttonElement) { // Let's apply an opacity animation, and then let's delete the files
+            new Promise(res => buttonElement[0].animate([{opacity: 1}, {opacity: 0}], {duration: 200, easing: "ease-in-out"}).addEventListener("finish", res)).then(() => {
+                if (index !== -1) images.splice(index, 1);
+            });
+        } else if (index !== -1) images.splice(index, 1);
     }
     openedImage = undefined;
 }} {token} data={openedImage[0]} sourceImage={getPreviewUrl(openedImage[0])} callback={async (image, main) => {
@@ -657,7 +675,7 @@ backFn={async (image, main, isFromDelete) => {
     const formData = {
         ids: itemsSelected.map(i => i.id),
         contentType: itemsSelected.map(i => i.mimeType.startsWith("video") ? "1" : "0"),
-        names: itemsSelected.map(i => `${!albumView || typeof selectedAlbum !== "undefined" ? "" : `${getRelativePathName(i.relativePath ?? "No album")}/`}${i.name}`)
+        names: itemsSelected.map(i => `${!albumView || typeof selectedAlbum !== "undefined" ? "" : `${getRelativePathName(i.relativePath ?? lang("No album"))}/`}${i.name}`)
     };
     if (typeof window.showDirectoryPicker !== "undefined") { // Save the files using the File System API instead of downloading a zip file
         try {
@@ -719,7 +737,14 @@ backFn={async (image, main, isFromDelete) => {
     clearSelectedItems();
     isSelectModeEnabled = false;
     if (topBtnContainer) topBtnContainerTransition(topBtnContainer, true).then(() => topBtnContainer && topBtnContainerTransition(topBtnContainer))
-}}></SelectComponent>
+}} favoriteCallback={images.some(i => typeof i.isFavorite !== "undefined") ? async () => {
+    const markAsFavorite = itemsSelected.some(i => !i.isFavorite);
+    for (const element of itemsSelected) {
+        if (element.isFavorite === markAsFavorite) continue;
+        const req = await fetch(`${StartPath}/api/addfavorites?id=${encodeURIComponent(element.id)}&isVideo=${element.mimeType.startsWith("video") ? "1" : "0"}&favorite=${markAsFavorite ? "1" : "0"}`, {headers: {Authorization: `Bearer ${token}`}});
+        if (req.ok) element.isFavorite = markAsFavorite;
+    }
+} : undefined}></SelectComponent>
 {/if}
 
 {#if showSettings}

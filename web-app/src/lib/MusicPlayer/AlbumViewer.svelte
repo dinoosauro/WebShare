@@ -40,6 +40,16 @@
 
     onMount(() => {
         if (!window.history.state || window.history.state.openedContent !== name || window.history.state.contentType !== type) window.history.pushState({section: "songs", openedContent: name, contentType: type}, "");
+        function keyboardEvent(e: KeyboardEvent) { // Permit to close the album viewer by pressing Escape
+            if (e.code === "Escape") {
+                window.removeEventListener("keydown", keyboardEvent);
+                window.history.back();
+            }
+        }
+        window.addEventListener("keydown", keyboardEvent);
+        return () => {
+            window.removeEventListener("keydown", keyboardEvent);
+        }
     })
 </script>
 

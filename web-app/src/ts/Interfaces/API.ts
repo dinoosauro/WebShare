@@ -9,7 +9,8 @@ export interface MediaInfo {
     width: number,
     height: number,
     relativePath: string,
-    duration?: number
+    duration?: number,
+    isFavorite?: boolean
 }
 
 export interface FileMetadata {

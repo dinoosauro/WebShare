@@ -2,9 +2,11 @@
     import { onMount } from "svelte";
     import { getIconSrc } from "../../ts/IconManager";
     import convertNumberToStr from "../../ts/ConvertNumberToString";
+    import RegenerateIcons from "../../ts/RegenerateIcons";
+    import lang from "../../ts/Lang";
 
     let main: HTMLDivElement;
-    const {imagePreviewUrl, name, suggestedProportion, useHeightProportion, duration, imageBackgroundColor, customErrorEvent}: {
+    const {imagePreviewUrl, name, suggestedProportion, useHeightProportion, duration, imageBackgroundColor, customErrorEvent, isFavorite}: {
         /**
          * The URL that'll be loaded if the element is visible
          */
@@ -22,9 +24,9 @@
          */
         useHeightProportion?: boolean, 
         /**
-         * If the content is a video, its duration in seconds
+         * If the content is a video, its duration in seconds. If no duration is available, put `true` to display only the play icon.
          */
-        duration?: number, 
+        duration?: number | true, 
         /**
          * Apply a custom background color to the image
          */
@@ -32,7 +34,11 @@
         /**
          * Function to call when the server returns an error while loading the image instead of the standard one (that tries to load it again after 1 second)
          */
-        customErrorEvent?: (e: Event) => void
+        customErrorEvent?: (e: Event) => void,
+        /**
+         * If the image has been marked as favorite by the user
+         */
+        isFavorite?: boolean
     } = $props();
     /**
      * If the image should be shown or not
@@ -66,12 +72,29 @@
             setTimeout(() => ((e.target as HTMLImageElement).src = imagePreviewUrl), 1000);
         }} style={`${useHeightProportion ? "width" : "height"}: calc(var(--picture-height) - var(--border-size) - var(--border-size)); object-fit: cover; border-radius: 12px; pointer-events: none; ${useHeightProportion ? "height" : "width"}: calc(var(--picture-height) * var(--width-proportion));${imageBackgroundColor ? ` background-color: ${imageBackgroundColor};` : ""}`}>
         {#if duration}
-        <div style="position: absolute; bottom: 15px; left: 15px; backdrop-filter: var(--transparency-filter); padding: 10px; border-radius: 12px" class="flex hcenter gap">
-            <img use:RegenerateIcons.register={{icon: "play"}} alt="Video">
-            <span>{convertNumberToStr(duration)}</span>
+        <div style="bottom: 5px;" class="flex hcenter gap hoverImg">
+            <img use:RegenerateIcons.register={{icon: "play"}} alt={lang("Video")}>
+            {#if typeof duration === "number"}
+                <span>{convertNumberToStr(duration)}</span>
+            {/if}
+        </div>
+        {/if}
+        {#if isFavorite}
+        <div style="top: 5px;" class="flex hcenter gap hoverImg">
+            <img use:RegenerateIcons.register={{icon: "star"}} alt={lang("Is favorite")}>
         </div>
         {/if}
     {:else}
         <div style={`${useHeightProportion ? "width" : "height"}: var(--picture-height); ${useHeightProportion ? "height" : "width"}: calc(var(--picture-height) * var(--width-proportion))`}></div>
     {/if}
 </div>
+
+<style>
+    .hoverImg {
+        left: 5px; 
+        backdrop-filter: var(--transparency-filter); 
+        padding: 10px; 
+        border-radius: 12px;
+        position: absolute;
+    }
+</style>

@@ -39,9 +39,9 @@
         * Function called when the user closes the PhotoPreview dialog. This permits to fire a transition.
         * @param image the image loaded
         * @param main the container of the PhotoPreview container
-        * @param hasBeenDeleted if the selected image has been deleted 
+        * @param imagesDeleted a list of MediaInfo elements that have been deleted while the PhotoPreview component was visible
         */
-        backFn: (image: HTMLImageElement, main: HTMLElement, hasBeenDeleted?: boolean) => void,
+        backFn: (image: HTMLImageElement, main: HTMLElement, imagesDeleted: MediaInfo[]) => void,
         /**
          * This function contains the function that can be called to refresh the location map. This is usually used in the Settings, so that the user can change the map style.
          */
@@ -146,13 +146,22 @@
      */
     let fullscreenIcon: HTMLImageElement | undefined;
     /**
-     * If the photo preview component is being closed since the image has been deleted
+     * A list of the images that have been deleted from this component
      */
-    let isFromDelete = false;
+    let deletedImages: MediaInfo[] = [];
     /**
      * If the component is being closed
      */
     let isBeingDestroyed = false;
+    /**
+     * Close the PhotoPreview component
+     */
+    function closeWrapper() {
+        img.style.display = "block";
+        if (video) video.style.display = "none";
+        isBeingDestroyed = true;
+        setTimeout(() => window.history.back(), 25);
+    }
 
     $effect(() => {
         if (volumeOrPlaybackSelect) { // Permit to trigger events to the input after the transition has ended
@@ -185,12 +194,15 @@
         }
         
         function popstateEvent() {
-            backFn(img, main, isFromDelete);
+            backFn(img, main, deletedImages);
             window.history.replaceState({...window.history.state, imageOpenInfo: undefined}, "");
         }
 
         function keyboardEvent(e: KeyboardEvent) {
-            if (e.code === "ArrowRight") nextImage(); else if (e.code === "ArrowLeft") prevImage();
+            if (e.code === "ArrowRight") nextImage(); else if (e.code === "ArrowLeft") prevImage(); else if (e.code === "Escape") {
+                window.removeEventListener("keydown", keyboardEvent); // Let's remove it immediately, so that the user can't trigger multiple animations by pressing Escape multiple times.
+                closeWrapper();
+            }
         }
         window.addEventListener("fullscreenchange", fullscreenEvent);
         window.addEventListener("popstate", popstateEvent);
@@ -395,10 +407,16 @@
                 <p>{lang("Taken on")} {new Date(data.dateTaken || data.dateModified || data.dateAdded).toLocaleString(undefined, {weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "numeric", minute: "numeric"})}</p>
                 <Card isSecondCard={true}>
                     <h4>{lang("Actions")}:</h4>
-                    <div class="flex hcenter" style="gap: 5px; flex-wrap: wrap">
+                    <div class="flex" style="gap: 5px; flex-wrap: wrap; align-items: stretch;">
                         <button style="flex: 1 0 150px">
                             <a href={`${downloadUrl}&name=${encodeURIComponent(data.name)}`} download={data.name} target="_blank" style="text-decoration: none; color: var(--accenttext)">{lang("Download")}</a>
                         </button>
+                        {#if typeof data.isFavorite !== "undefined"}
+                            <button style="flex: 1 0 150px" onclick={async () => {
+                                const req = await fetch(`${StartPath}/api/addfavorites?id=${encodeURIComponent(data.id)}&isVideo=${data.mimeType.startsWith("video") ? "1" : "0"}&favorite=${data.isFavorite ? "0" : "1"}`, {headers: {Authorization: `Bearer ${token}`}})
+                                if (req.ok) data.isFavorite = !data.isFavorite;
+                            }}>{lang(data.isFavorite ? "Remove image from favorites" : "Add image to favorites")}</button>
+                        {/if}
                         <button style="flex: 1 0 150px" onclick={async () => {
                             if (confirm(lang("Do you want to delete the selected image? This action can't be undone."))) {
                                 const req = await fetch(`${StartPath}/api/delete?id=${encodeURIComponent(data.id)}&type=${data.mimeType.startsWith("video") ? "video" : "image"}`, {
@@ -407,18 +425,16 @@
                                     }
                                 })
                                 if (req.ok) {
-                                    isFromDelete = true;
-                                    isBeingDestroyed = true;
-                                    window.history.back();
+                                    deletedImages.push(data);
+                                    if (Settings.photoViewer.goToNextImageWhenDeleting) {
+                                        nextImage();
+                                        return;
+                                    }
+                                    closeWrapper()
                                 }
                             }
                         }}>{lang("Delete image")}</button>
-                        <button style="flex: 1 0 150px" onclick={() => {
-                            img.style.display = "block";
-                            if (video) video.style.display = "none";
-                            isBeingDestroyed = true;
-                            setTimeout(() => window.history.back(), 25);
-                            }}>{lang("Close preview")}</button>
+                        <button style="flex: 1 0 150px" onclick={() => closeWrapper()}>{lang("Close preview")}</button>
                     </div>
                 </Card>
                 {#if metadata}

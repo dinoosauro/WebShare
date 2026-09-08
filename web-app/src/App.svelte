@@ -52,7 +52,6 @@
     } else {localStorage.removeItem("WebShare-Token"); window.history.replaceState({}, "");}
     window.addEventListener("popstate", (e) => {
       if (e.state?.section) selectedSection = e.state?.section;
-      console.log(e.state?.section, selectedSection);
     })
   })
 

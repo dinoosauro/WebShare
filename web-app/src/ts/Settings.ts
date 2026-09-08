@@ -8,7 +8,8 @@ let obj = {
         defaultPhotoHeight: 200,
         zoomChange: 50,
         showIconForVideos: true,
-        locationMapStyle: "default"
+        locationMapStyle: "default",
+        goToNextImageWhenDeleting: true
     },
     albumViewer: {
         mergeFoldersWithDifferentRelativePath: true

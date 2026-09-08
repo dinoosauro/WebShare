@@ -162,7 +162,14 @@ const translation = new Map<string, Language>([
     ["How do you want to name the new folder?", {it: "Come vuoi chiamare la nuova cartella?"}],
     ["Create folder", {it: "Crea cartella"}],
     ["If a file already exists, replace it", {it: "Sostituisci un file se esiste di già"}],
-    ["File upload:", {it: "Caricamento dei file:"}]
+    ["File upload:", {it: "Caricamento dei file:"}],
+    ["Is favorite", {it: "È preferito"}],
+    ["Add image to favorites", {it: "Aggiungi immagine ai preferiti"}],
+    ["Remove image from favorites", {it: "Rimuovi immagine dai preferiti"}],
+    ["No album", {it: "Nessun album"}],
+    ["Favorites", {it: "Preferiti"}],
+    ["Add/remove from favorites", {it: "Aggiungi/rimuovi dai preferiti"}],
+    ["Go to the next image when an image has been deleted in the fullscreen viewer mode. If disabled, the website will close the fullscreen photo viewer", {it: "Vai all'immagine successiva quando un'immagine viene eliminata nella modalità di visualizzazione a schermo intero. Se disabilitato, il sito chiuderà il visualizzatore delle foto a schermo intero"}]
 ]);
 
 /**

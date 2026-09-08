@@ -113,6 +113,9 @@
                     <input type="checkbox" onchange={() => (callbacks.updateShowIconsForVideos && callbacks.updateShowIconsForVideos())} bind:checked={Settings.photoViewer.showIconForVideos}>{lang("Show the video duration in the bottom-left corner of the photo viewer")}
                 </label><br>
                 <label class="flex hcenter gap">
+                    <input type="checkbox" bind:checked={Settings.photoViewer.goToNextImageWhenDeleting}>{lang("Go to the next image when an image has been deleted in the fullscreen viewer mode. If disabled, the website will close the fullscreen photo viewer")}
+                </label><br>
+                <label class="flex hcenter gap">
                     {lang("Location map style")}: <select onchange={() => callbacks.rerenderLocationMap && callbacks.rerenderLocationMap()} bind:value={Settings.photoViewer.locationMapStyle} style="background-color: var(--secondcard);">
                         <option value="default">{lang("Default")}</option>
                         <option value="light">{lang("Light")}</option>
