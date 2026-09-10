@@ -489,20 +489,27 @@ public class Server extends NanoHTTPD {
                      * A list of all the DocumentFiles fetched
                      */
                     ArrayList<DocumentFile> files = new ArrayList<>();
+                    /**
+                     * A list of `default`, `jpeg`, `png` or `webp`. If not default, the image should be converted to this format.
+                     */
+                    ArrayList<String> convertTo = new ArrayList<>();
                     if (isFromMedia) { // Get from MediaStore API
                         String idsString = getParameter(params, "ids");
                         String contentTypeStr = getParameter(params, "contentType");
                         String nameStr = getParameter(params, "names");
-                        if (idsString != null && contentTypeStr != null && nameStr != null) {
+                        String convertToStr = getParameter(params, "convertTo");
+                        if (idsString != null && contentTypeStr != null && nameStr != null && convertTo != null) {
                             String[] ids = new Gson().fromJson(idsString, String[].class); // All the MediaStores IDs
                             int[] contentType = new Gson().fromJson(contentTypeStr, int[].class); // 0 = image; 1 = video; 2 = audio
                             String[] names = new Gson().fromJson(nameStr, String[].class); // relative paths
+                            String[] convertToOption = new Gson().fromJson(convertToStr, String[].class);
                             for (int i = 0; i < ids.length; i++) {
                                 Uri imageUri = ContentUris.withAppendedId(getMediaStoreUri(contentType[i] == 2 ? AvailableMediaStoreUriTypes.AUDIO : contentType[i] == 1 ? AvailableMediaStoreUriTypes.VIDEO : AvailableMediaStoreUriTypes.IMAGE), Long.parseLong(ids[i]));
                                 ContentResolver resolver = context.getContentResolver();
                                 try {
                                     fileDescriptors.add(resolver.openAssetFileDescriptor(imageUri, "r"));
                                     fileDescriptorNames.add(names[i]);
+                                    convertTo.add(convertToOption[i]);
                                 } catch (Exception ignored) {}
                             }
                         } else return corsFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Missing required fields in body form");
@@ -530,16 +537,20 @@ public class Server extends NanoHTTPD {
                                 ArrayList<String> addedFiles = new ArrayList<>();
                                 for (DocumentFile file: files) {
                                     Uri fileUri = file.getUri();
-                                    stream.putNextEntry(new ZipEntry(getSuggestedName(fileUri.toString().substring(sourcePathLength + (fileUri.toString().startsWith("file://") ? 7 : 0)), addedFiles)));
+                                    stream.putNextEntry(new ZipEntry(getSuggestedName(fileUri.toString().substring(sourcePathLength + (fileUri.toString().startsWith("file://") ? 7 : 0)), addedFiles, null)));
                                     try (InputStream fis = context.getContentResolver().openInputStream(fileUri)) {
                                         fis.transferTo(stream);
                                     }
                                     stream.closeEntry();
                                 }
                                 for (int i = 0; i < fileDescriptors.size(); i++) {
-                                    stream.putNextEntry(new ZipEntry(getSuggestedName(fileDescriptorNames.get(i), addedFiles)));
+                                    stream.putNextEntry(new ZipEntry(getSuggestedName(fileDescriptorNames.get(i), addedFiles, convertTo.get(i))));
                                     try (FileInputStream fis = fileDescriptors.get(i).createInputStream()) {
-                                        fis.transferTo(stream);
+                                        if (!Objects.equals(convertTo.get(i), "default")) {
+                                            try (InputStream newStream = convertImage(BitmapFactory.decodeStream(fis, null, null), 80, convertTo.get(i))) {
+                                                newStream.transferTo(stream);
+                                            }
+                                        } else fis.transferTo(stream);
                                     }
                                     stream.closeEntry();
                                 }
@@ -722,7 +733,8 @@ public class Server extends NanoHTTPD {
      * @param addedFiles the list of files already added
      * @return the suggested name of the file
      */
-    private String getSuggestedName(String tempName, ArrayList<String> addedFiles) {
+    private String getSuggestedName(String tempName, ArrayList<String> addedFiles, String convertToDestination) {
+        if (!Objects.equals(convertToDestination, "default")) tempName = tempName.substring(0, tempName.lastIndexOf(".") + 1) + (convertToDestination.equals("jpeg") ? "jpg" : convertToDestination.toLowerCase());
         String name = tempName;
         int i = 1;
         while (addedFiles.contains(name)) {
@@ -749,10 +761,12 @@ public class Server extends NanoHTTPD {
         ContentResolver resolver = context.getContentResolver();
         try {
             if (convertTo != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // Convert the image
-                return corsChunkResponse(Response.Status.OK, "image/" + convertTo, convertImage(ImageDecoder.decodeBitmap(ImageDecoder.createSource(resolver, imageUri), (decoder, info, src) -> {
+                Response res = corsChunkResponse(Response.Status.OK, "image/" + convertTo, convertImage(ImageDecoder.decodeBitmap(ImageDecoder.createSource(resolver, imageUri), (decoder, info, src) -> {
                     decoder.setAllocator(ImageDecoder.ALLOCATOR_SOFTWARE); // Required since Bitmap.compress() can't use a hardware bitmap
                     decoder.setMutableRequired(false);
                 }), 60, convertTo));
+                if (outputName != null) res.addHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(outputName, StandardCharsets.UTF_8).replace("+", "%20"));
+                return res;
             }
         } catch (IOException e) {
             return corsFixedLengthResponse(Response.Status.INTERNAL_ERROR, mimeType, "Failed converting image");

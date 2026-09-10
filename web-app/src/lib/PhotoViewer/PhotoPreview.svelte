@@ -272,7 +272,7 @@
                 metadata = json;
             })
         })
-    });
+    });    
 </script>
 
 <div class="main opacity" bind:this={main}>
@@ -408,8 +408,16 @@
                 <Card isSecondCard={true}>
                     <h4>{lang("Actions")}:</h4>
                     <div class="flex" style="gap: 5px; flex-wrap: wrap; align-items: stretch;">
-                        <button style="flex: 1 0 150px">
-                            <a href={`${downloadUrl}&name=${encodeURIComponent(data.name)}`} download={data.name} target="_blank" style="text-decoration: none; color: var(--accenttext)">{lang("Download")}</a>
+                        <button style="flex: 1 0 150px" onclick={() => {
+                            const name = Settings.photoViewer.downloadImageFormat === "default" || data.mimeType.startsWith("video") ? data.name : `${data.name.substring(0, data.name.lastIndexOf("."))}.${Settings.photoViewer.downloadImageFormat === "jpeg" ? "jpg" : Settings.photoViewer.downloadImageFormat}`;
+                            const a = Object.assign(document.createElement("a"), {
+                                href: `${downloadUrl}&name=${encodeURIComponent(name)}${Settings.photoViewer.downloadImageFormat === "default" || data.mimeType.startsWith("video") ? "" : `&convertTo=${Settings.photoViewer.downloadImageFormat.toLowerCase()}`}`,
+                                download: name,
+                                target: "_blank",
+                            });
+                            a.click();
+                        }}>
+                           {lang("Download")}
                         </button>
                         {#if typeof data.isFavorite !== "undefined"}
                             <button style="flex: 1 0 150px" onclick={async () => {

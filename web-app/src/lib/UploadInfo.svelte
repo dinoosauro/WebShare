@@ -64,11 +64,19 @@
             }
             if (progress === 1 && !fileToDownload[dataIndex].isError) fileToDownload.splice(dataIndex, 1);
         }
-        
+
+        function beforeUnload(e: Event) { // Ask the user if they really want to close the tab if an upload/download operation is ongoing
+            if (fileToDownload.length !== 0 || fileToUpload.length !== 0) {
+                e.preventDefault();
+                return "";
+            }
+        }
+        window.addEventListener("beforeunload", beforeUnload);
         return () => {
             UploadFiles._startUpload = null;
             FileSystemApiHelper._addProgress = null;
             FileSystemApiHelper._updateProgress = null;
+            window.removeEventListener("beforeunload", beforeUnload);
         }
     })
 </script>
@@ -139,7 +147,7 @@
 
 <style>
     .uploadDialog {
-        top: 55px; 
+        top: 70px; 
         right: 15px; 
         width: 40vw; 
         position: fixed;

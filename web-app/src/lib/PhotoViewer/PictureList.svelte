@@ -623,13 +623,13 @@
     const nextElement = entries.length - 1 === currentImg ? entries[0] : entries[currentImg + 1];
     openedImage[0] = nextElement[1];
 }} prevImage={async () => {
-        if (!openedImage) return;
+    if (!openedImage) return;
     const entries = Array.from(imageBtnsAvailable);
     const currentImg = entries.findIndex(i => (openedImage as [MediaInfo, HTMLImageElement])[0].id === i[1].id);
     if (currentImg === -1) return;
     const prevElement = currentImg === 0 ? entries[entries.length - 1] : entries[currentImg - 1];
     openedImage[0] = prevElement[1];
-}} getLocationReload={(fn) => (rerenderLocationMap = fn)} 
+}} getLocationReload={(fn) => (rerenderLocationMap = fn)}
 backFn={async (image, main, deletedElements) => {
     if (!openedImage) return;
     let img = openedImage[1];
@@ -667,6 +667,7 @@ backFn={async (image, main, deletedElements) => {
     <input name="ids">
     <input name="contentType">
     <input name="names">
+    <input name="convertTo">
 </form>
 
 
@@ -675,7 +676,8 @@ backFn={async (image, main, deletedElements) => {
     const formData = {
         ids: itemsSelected.map(i => i.id),
         contentType: itemsSelected.map(i => i.mimeType.startsWith("video") ? "1" : "0"),
-        names: itemsSelected.map(i => `${!albumView || typeof selectedAlbum !== "undefined" ? "" : `${getRelativePathName(i.relativePath ?? lang("No album"))}/`}${i.name}`)
+        names: itemsSelected.map(i => `${!albumView || typeof selectedAlbum !== "undefined" ? "" : `${getRelativePathName(i.relativePath ?? lang("No album"))}/`}${i.name}`),
+        convertTo: itemsSelected.map(i => i.mimeType.startsWith("video") ? "default" : SettingsObject.photoViewer.downloadImageFormat)
     };
     if (typeof window.showDirectoryPicker !== "undefined") { // Save the files using the File System API instead of downloading a zip file
         try {
@@ -688,6 +690,7 @@ backFn={async (image, main, deletedElements) => {
                 if (formData.ids.length <= i) return;
                 const nameDir = formData.names[i].split("/");
                 let fileName = nameDir.pop() ?? formData.names[i];
+                if (formData.convertTo[i] !== "default") fileName = `${fileName.substring(0, fileName.lastIndexOf("."))}.${formData.convertTo[i] === "jpeg" ? "jpg" : formData.convertTo[i]}`
                 let outputHandle = picker;
                 for (const dir of nameDir) outputHandle = await picker.getDirectoryHandle(dir, {create: true});
                 if (!SettingsObject.downloads.replaceFiles) { // Check if a file in the same directory exists
@@ -701,7 +704,7 @@ backFn={async (image, main, deletedElements) => {
                     }
                 }
                 let outputFileHandle = await picker.getFileHandle(fileName, {create: true});
-                await FileSystemApiHelper.pipeContent(`${StartPath}/api/download?id=${encodeURIComponent(formData.ids[i])}&mimetype=${encodeURIComponent(formData.contentType[i] === "1" ? "video/mp4" : "image/jpeg")}&token=${encodeURIComponent(token)}`, formData.names[i], outputFileHandle);
+                await FileSystemApiHelper.pipeContent(`${StartPath}/api/download?id=${encodeURIComponent(formData.ids[i])}&mimetype=${encodeURIComponent(formData.contentType[i] === "1" ? "video/mp4" : "image/jpeg")}&token=${encodeURIComponent(token)}${formData.convertTo[i] !== "default" ? `&convertTo=${encodeURIComponent(formData.convertTo[i])}` : ""}`, fileName, outputFileHandle);
                 nextItem();
             }
             for (let i = 0; i < SettingsObject.downloads.concurrentDownloads; i++) nextItem();
@@ -714,6 +717,7 @@ backFn={async (image, main, deletedElements) => {
     (downloadForm.querySelector("[name=ids]") as HTMLInputElement).value = JSON.stringify(formData.ids);
     (downloadForm.querySelector("[name=contentType]") as HTMLInputElement).value = JSON.stringify(formData.contentType);
     (downloadForm.querySelector("[name=names]") as HTMLInputElement).value = JSON.stringify(formData.names);
+    (downloadForm.querySelector("[name=convertTo]") as HTMLInputElement).value = JSON.stringify(formData.convertTo);
     downloadForm.submit();
 }} deleteCallback={async (e: Event) => {
     if (confirm(lang("Are you sure you want to delete the selected files? This action can't be undone."))) {

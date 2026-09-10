@@ -117,4 +117,11 @@ obj.audio.addEventListener("ended", () => {
     obj.next();
 })
 
+window.addEventListener("beforeunload", (e) => {
+    if (!obj.audio.paused) {
+        e.preventDefault();
+        return "";
+    }
+})
+
 export default obj;

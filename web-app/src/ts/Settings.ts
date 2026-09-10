@@ -9,7 +9,8 @@ let obj = {
         zoomChange: 50,
         showIconForVideos: true,
         locationMapStyle: "default",
-        goToNextImageWhenDeleting: true
+        goToNextImageWhenDeleting: true,
+        downloadImageFormat: "default"
     },
     albumViewer: {
         mergeFoldersWithDifferentRelativePath: true

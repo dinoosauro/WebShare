@@ -101,6 +101,14 @@
                     {lang("Default path for video upload")}: <input style="background-color: var(--secondcard);" type="text" bind:value={Settings.photoViewer.defaultVideoUploadPath}>
                 </label><br>
                 <label class="flex hcenter gap">
+                    {lang("When downloading an image")}, <select style="background-color: var(--secondcard);" bind:value={Settings.photoViewer.downloadImageFormat}>
+                        <option value="default">download the original file</option>
+                        <option value="jpg">convert it to JPEG</option>
+                        <option value="png">convert it to PNG</option>
+                        <option value="webp">convert it to WebP</option>
+                    </select>
+                </label><br>
+                <label class="flex hcenter gap">
                     <input type="checkbox" bind:checked={Settings.photoViewer.askForSubfolders}>{lang("Ask every time if the files should be uploaded in a subfolder")}
                 </label><br>
                 <label class="flex hcenter gap">
