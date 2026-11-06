@@ -168,7 +168,7 @@
     async function getDirectory(path?: string, isContentUri?: boolean) {
         document.body.append(spinner)
         if (typeof path === "undefined") { // No path has been provided. Let's get the disk drives connected to the device.
-            const sourcesReq = await fetch(`${StartPath}/api/getAvailableDirs`, {
+            const sourcesReq = await fetch(`${StartPath()}/api/getAvailableDirs`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -181,7 +181,7 @@
             spinner.remove();
             return [{isDirectory: true, path: "/storage/emulated/0"}] as Directory[]; // Fallback if no disk drives can be found from the `getAvailableDirs` endpoint
         }
-        const req = await fetch(`${StartPath}/api/dir?path=${encodeURIComponent(path)}&isContentUri=${isContentUri ? "1" : "0"}`, {
+        const req = await fetch(`${StartPath()}/api/dir?path=${encodeURIComponent(path)}&isContentUri=${isContentUri ? "1" : "0"}`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -343,7 +343,7 @@
             window.history.pushState({section: "files", path: JSON.parse(JSON.stringify(currentPath))}, "");
             return;
         }
-        window.open(`${StartPath}/api/download?path=${encodeURIComponent(file.fileContentUri || `${currentPath[0]}/${file.path}`)}&token=${encodeURIComponent(token)}&isContentUri=${file.fileContentUri ? "1" : "0"}`, "_blank");
+        window.open(`${StartPath()}/api/download?path=${encodeURIComponent(file.fileContentUri || `${currentPath[0]}/${file.path}`)}&token=${encodeURIComponent(token)}&isContentUri=${file.fileContentUri ? "1" : "0"}`, "_blank");
     }
 
     let table: HTMLTableElement;
@@ -464,7 +464,7 @@
         case "createfolder": {
             const name = prompt(lang("How do you want to name the new folder?"))
             if (name != null) {
-                fetch(`${StartPath}/api/newfolder?path=${encodeURIComponent(currentPath[1] ? name : `${currentPath[0]}${currentPath[0].endsWith("/") ? "" : "/"}${name}`)}${currentPath[1] ? `&sourceContentUri=${encodeURIComponent(currentPath[0])}` : ""}`, {headers: {Authorization: `Bearer ${token}`}}).then(() => {
+                fetch(`${StartPath()}/api/newfolder?path=${encodeURIComponent(currentPath[1] ? name : `${currentPath[0]}${currentPath[0].endsWith("/") ? "" : "/"}${name}`)}${currentPath[1] ? `&sourceContentUri=${encodeURIComponent(currentPath[0])}` : ""}`, {headers: {Authorization: `Bearer ${token}`}}).then(() => {
                     for (const fn of UploadFiles.refreshContent) fn();
                 })
             }
@@ -561,7 +561,7 @@
                         <td style="overflow-wrap: anywhere;">
                             <div style={`padding: 10px; ${(SettingsObject.fileViewer.showImagePreview && (file.mimeType?.startsWith("image") || file.mimeType?.startsWith("video"))) || (SettingsObject.fileViewer.showAudioPreview && file.mimeType?.startsWith("audio")) || (SettingsObject.fileViewer.showPdfPreview && file.mimeType === "application/pdf") ? "flex-direction: column" : ""}`} class="flex hcenter gap">
                                 {#if (SettingsObject.fileViewer.showImagePreview && (file.mimeType?.startsWith("image") || file.mimeType?.startsWith("video"))) || (SettingsObject.fileViewer.showAudioPreview && file.mimeType?.startsWith("audio")) || (SettingsObject.fileViewer.showPdfPreview && file.mimeType === "application/pdf")}
-                                    <ImageIntersectionViewer useHeightProportion={true} imageBackgroundColor={file.mimeType === "application/pdf" ? "white" : undefined} name={file.path} imagePreviewUrl={`${StartPath}/api/getPreview?path=${encodeURIComponent(file.fileContentUri || `${currentPath[0]}${file.path}`)}&isContentUri=${file.fileContentUri ? "1" : "0"}&type=${encodeURIComponent(file.mimeType)}&token=${encodeURIComponent(token)}`}></ImageIntersectionViewer>
+                                    <ImageIntersectionViewer useHeightProportion={true} imageBackgroundColor={file.mimeType === "application/pdf" ? "white" : undefined} name={file.path} imagePreviewUrl={`${StartPath()}/api/getPreview?path=${encodeURIComponent(file.fileContentUri || `${currentPath[0]}${file.path}`)}&isContentUri=${file.fileContentUri ? "1" : "0"}&type=${encodeURIComponent(file.mimeType)}&token=${encodeURIComponent(token)}`}></ImageIntersectionViewer>
                                 {:else}
                                     <img class="icon" style="pointer-events: none;" use:RegenerateIcons.register={{icon: getImageToUse(file) as "document"}} alt={"File icon"}>
                                 {/if}
@@ -592,7 +592,7 @@
             fileButtonEvent(e, file);
         }}>
             {#if SettingsObject.fileViewer.showImagePreview && (file.mimeType?.startsWith("image") || file.mimeType?.startsWith("video"))}
-                <ImageIntersectionViewer useHeightProportion={true} name={file.path} imagePreviewUrl={`${StartPath}/api/getPreview?path=${encodeURIComponent(file.fileContentUri || `${currentPath[0]}${file.path}`)}&isContentUri=${file.fileContentUri ? "1" : "0"}&type=${encodeURIComponent(file.mimeType)}&token=${encodeURIComponent(token)}`}></ImageIntersectionViewer>
+                <ImageIntersectionViewer useHeightProportion={true} name={file.path} imagePreviewUrl={`${StartPath()}/api/getPreview?path=${encodeURIComponent(file.fileContentUri || `${currentPath[0]}${file.path}`)}&isContentUri=${file.fileContentUri ? "1" : "0"}&type=${encodeURIComponent(file.mimeType)}&token=${encodeURIComponent(token)}`}></ImageIntersectionViewer>
             {:else}
                 <img class="icon" use:RegenerateIcons.register={{icon: getImageToUse(file) as "document"}} alt={lang("File icon")}>
             {/if}
@@ -617,7 +617,7 @@
 {/key}
 </Card>
 
-<form style="display: none;" target="_blank" method="POST" action={`${StartPath}/api/zip?token=${encodeURIComponent(token)}`} bind:this={downloadForm}>
+<form style="display: none;" target="_blank" method="POST" action={`${StartPath()}/api/zip?token=${encodeURIComponent(token)}`} bind:this={downloadForm}>
     <input name="type" value="files">
     <input name="paths">
     <input name="isContentUri">
@@ -655,7 +655,7 @@
                 index++;
                 const i = index;
                 if (i >= formInfo.paths.length) return;
-                    const checkDir = await fetch(`${StartPath}/api/dir?path=${encodeURIComponent(formInfo.paths[i])}&isContentUri=${formInfo.isContentUri[i] === -1 ? "0" : "1"}`, {headers: {Authorization: `Bearer ${token}`}});
+                    const checkDir = await fetch(`${StartPath()}/api/dir?path=${encodeURIComponent(formInfo.paths[i])}&isContentUri=${formInfo.isContentUri[i] === -1 ? "0" : "1"}`, {headers: {Authorization: `Bearer ${token}`}});
                     if (checkDir.ok) {
                         const data = await checkDir.json() as Directory[];
                         formInfo.paths.push(...data.map(a => a.fileContentUri || `${formInfo.paths[i]}/${a.path}`));
@@ -681,7 +681,7 @@
                     }
                 }
                 const fileHandle = await outputHandle.getFileHandle(realName, {create: true});
-                await FileSystemApiHelper.pipeContent(`${StartPath}/api/download?path=${encodeURIComponent(formInfo.paths[i])}&token=${encodeURIComponent(token)}&isContentUri=${formInfo.isContentUri[i] === -1 ? 0 : 1}`, name, fileHandle);
+                await FileSystemApiHelper.pipeContent(`${StartPath()}/api/download?path=${encodeURIComponent(formInfo.paths[i])}&token=${encodeURIComponent(token)}&isContentUri=${formInfo.isContentUri[i] === -1 ? 0 : 1}`, name, fileHandle);
                 nextItem();
             }
             for (let i = 0; i < SettingsObject.downloads.concurrentDownloads; i++) nextItem();
@@ -699,7 +699,7 @@
     if (confirm(lang("Do you want to delete all the selected files? This action can't be undone."))) {
         ((e.target as HTMLImageElement).parentElement as HTMLButtonElement).disabled = true;
         for (let i = 0; i < selectedItems.length; i++) {
-            const req = await fetch(`${StartPath}/api/delete?path=${encodeURIComponent(selectedItems[i])}&isContentUri=${ifSelectedItemsIsContentUri[i] !== -1 ? "1" : "0"}`, {
+            const req = await fetch(`${StartPath()}/api/delete?path=${encodeURIComponent(selectedItems[i])}&isContentUri=${ifSelectedItemsIsContentUri[i] !== -1 ? "1" : "0"}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

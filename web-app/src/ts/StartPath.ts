@@ -1,1 +1,1 @@
-export default (window.location.hostname === "localhost" ? localStorage.getItem("WebShare-ServerPath") : null) || ""
+export default () => ((window.location.hostname.indexOf("192.168") === -1 ? localStorage?.getItem("WebShare-ServerPath") : null) || "")

@@ -35,14 +35,14 @@
     } = $props();
 
       async function refreshContent() {
-        const imageReq = await fetch(`${StartPath}/api/getImages`, {
+        const imageReq = await fetch(`${StartPath()}/api/getImages`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
         if (!imageReq.ok) throw new Error("Failed image fetching");
         const imageJson = await imageReq.json() as MediaInfo[];
-        const videoReq = await fetch(`${StartPath}/api/getVideos`, {
+        const videoReq = await fetch(`${StartPath()}/api/getVideos`, {
         headers: {
         Authorization: `Bearer ${token}`
         }
@@ -148,7 +148,7 @@
      * @param image the information about the image
      */
     function getPreviewUrl(image: MediaInfo) {
-        return `${StartPath}/api/getPreview?id=${encodeURIComponent(image.id)}&token=${encodeURIComponent(token)}&type=${image.mimeType.startsWith("video/") ? "video" : "image"}`
+        return `${StartPath()}/api/getPreview?id=${encodeURIComponent(image.id)}&token=${encodeURIComponent(token)}&type=${image.mimeType.startsWith("video/") ? "video" : "image"}`
     }
     
     /**
@@ -662,7 +662,7 @@ backFn={async (image, main, deletedElements) => {
 }}></PhotoPreview>
 {/if}
 
-<form style="display: none;" target="_blank" method="POST" action={`${StartPath}/api/zip?token=${encodeURIComponent(token)}`} bind:this={downloadForm}>
+<form style="display: none;" target="_blank" method="POST" action={`${StartPath()}/api/zip?token=${encodeURIComponent(token)}`} bind:this={downloadForm}>
     <input name="type" value="media">
     <input name="ids">
     <input name="contentType">
@@ -704,7 +704,7 @@ backFn={async (image, main, deletedElements) => {
                     }
                 }
                 let outputFileHandle = await picker.getFileHandle(fileName, {create: true});
-                await FileSystemApiHelper.pipeContent(`${StartPath}/api/download?id=${encodeURIComponent(formData.ids[i])}&mimetype=${encodeURIComponent(formData.contentType[i] === "1" ? "video/mp4" : "image/jpeg")}&token=${encodeURIComponent(token)}${formData.convertTo[i] !== "default" ? `&convertTo=${encodeURIComponent(formData.convertTo[i])}` : ""}`, fileName, outputFileHandle);
+                await FileSystemApiHelper.pipeContent(`${StartPath()}/api/download?id=${encodeURIComponent(formData.ids[i])}&mimetype=${encodeURIComponent(formData.contentType[i] === "1" ? "video/mp4" : "image/jpeg")}&token=${encodeURIComponent(token)}${formData.convertTo[i] !== "default" ? `&convertTo=${encodeURIComponent(formData.convertTo[i])}` : ""}`, fileName, outputFileHandle);
                 nextItem();
             }
             for (let i = 0; i < SettingsObject.downloads.concurrentDownloads; i++) nextItem();
@@ -723,7 +723,7 @@ backFn={async (image, main, deletedElements) => {
     if (confirm(lang("Are you sure you want to delete the selected files? This action can't be undone."))) {
         ((e.target as HTMLImageElement).parentElement as HTMLButtonElement).disabled = true;
         for (let i = 0; i < itemsSelected.length; i++) {
-            const req = await fetch(`${StartPath}/api/delete?id=${encodeURIComponent(itemsSelected[i].id)}&type=${itemsSelected[i].mimeType.startsWith("video") ? "video" : "image"}`, {
+            const req = await fetch(`${StartPath()}/api/delete?id=${encodeURIComponent(itemsSelected[i].id)}&type=${itemsSelected[i].mimeType.startsWith("video") ? "video" : "image"}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -745,7 +745,7 @@ backFn={async (image, main, deletedElements) => {
     const markAsFavorite = itemsSelected.some(i => !i.isFavorite);
     for (const element of itemsSelected) {
         if (element.isFavorite === markAsFavorite) continue;
-        const req = await fetch(`${StartPath}/api/addfavorites?id=${encodeURIComponent(element.id)}&isVideo=${element.mimeType.startsWith("video") ? "1" : "0"}&favorite=${markAsFavorite ? "1" : "0"}`, {headers: {Authorization: `Bearer ${token}`}});
+        const req = await fetch(`${StartPath()}/api/addfavorites?id=${encodeURIComponent(element.id)}&isVideo=${element.mimeType.startsWith("video") ? "1" : "0"}&favorite=${markAsFavorite ? "1" : "0"}`, {headers: {Authorization: `Bearer ${token}`}});
         if (req.ok) element.isFavorite = markAsFavorite;
     }
 } : undefined}></SelectComponent>

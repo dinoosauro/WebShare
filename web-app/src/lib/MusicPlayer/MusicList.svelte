@@ -38,7 +38,7 @@
      */
     let sortedAudioFiles = $derived(sortAudioFiles(availableAudioFiles));
     async function refreshContent() {
-        const req = await fetch(`${StartPath}/api/getAudio`, {
+        const req = await fetch(`${StartPath()}/api/getAudio`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -193,7 +193,7 @@
      * @param albumContent music metadata of that album/artist
      */
     function getAlbumArtLink(albumName: string, albumContent: AudioMetadata[]) {
-        return sortingInfo[0] === "album" || sortingInfo[0] === "track" ? `${StartPath}/api/getPreview?id=${encodeURIComponent(albumContent[0].id)}&albumId=${encodeURIComponent(albumContent[0].albumId ?? "")}&type=audio&token=${encodeURIComponent(token)}` : CreateAlbumArt(sortingInfo[0] === "track" ? (albumContent[0].title || albumContent[0].name) : albumName);
+        return sortingInfo[0] === "album" || sortingInfo[0] === "track" ? `${StartPath()}/api/getPreview?id=${encodeURIComponent(albumContent[0].id)}&albumId=${encodeURIComponent(albumContent[0].albumId ?? "")}&type=audio&token=${encodeURIComponent(token)}` : CreateAlbumArt(sortingInfo[0] === "track" ? (albumContent[0].title || albumContent[0].name) : albumName);
     }
 
     /**
@@ -633,7 +633,7 @@
     }}></AlbumViewer>
 {/if}
 
-<form style="display: none;" target="_blank" method="POST" action={`${StartPath}/api/zip?token=${encodeURIComponent(token)}`} bind:this={downloadForm}>
+<form style="display: none;" target="_blank" method="POST" action={`${StartPath()}/api/zip?token=${encodeURIComponent(token)}`} bind:this={downloadForm}>
     <input name="type" value="media">
     <input name="ids">
     <input name="contentType">
@@ -679,7 +679,7 @@
                 }
                 writtenFileNames.push(outputName);
                 const file = await picker.getFileHandle(outputName, {create: true});
-                await FileSystemApiHelper.pipeContent(`${StartPath}/api/download?id=${items[i]}&mimetype=${encodeURIComponent("audio/mpeg")}&name=${encodeURIComponent(names[i])}&token=${encodeURIComponent(token)}`, names[i], file);
+                await FileSystemApiHelper.pipeContent(`${StartPath()}/api/download?id=${items[i]}&mimetype=${encodeURIComponent("audio/mpeg")}&name=${encodeURIComponent(names[i])}&token=${encodeURIComponent(token)}`, names[i], file);
                 nextItem();
             }
             for (let i = 0; i < SettingsObject.downloads.concurrentDownloads; i++) nextItem();
@@ -698,7 +698,7 @@
         ((e.target as HTMLImageElement).parentElement as HTMLButtonElement).disabled = true;
         let items = Array.from(selectedItems);
         for (let i = 0; i < items.length; i++) {
-            const req = await fetch(`${StartPath}/api/delete?id=${encodeURIComponent(items[i])}&type=audio`, {
+            const req = await fetch(`${StartPath()}/api/delete?id=${encodeURIComponent(items[i])}&type=audio`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

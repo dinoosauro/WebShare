@@ -19,7 +19,7 @@
             !retry && fileToUpload.push(...files);
             for (const file of files) {
                 const req = new XMLHttpRequest();
-                req.open("POST", `${StartPath}/api/upload?path=${encodeURIComponent(file.path)}${file.contentUri ? `&contentUri=${encodeURIComponent(file.contentUri)}` : ""}&lastModified=${file.file.lastModified}&replace=${SettingsObject.uploads.replaceFiles ? "1" : "0"}`);
+                req.open("POST", `${StartPath()}/api/upload?path=${encodeURIComponent(file.path)}${file.contentUri ? `&contentUri=${encodeURIComponent(file.contentUri)}` : ""}&lastModified=${file.file.lastModified}&replace=${SettingsObject.uploads.replaceFiles ? "1" : "0"}`);
                 req.upload.onprogress = (e) => {
                     const data = fileToUpload.find(i => i.id === file.id);
                     if (data?.progress) {

@@ -103,6 +103,24 @@ public class MainActivity extends AppCompatActivity {
                 preferences.edit().putInt("ServerPort", Integer.parseInt(charSequence.toString().isBlank() ? "0" : charSequence.toString())).apply();
             }
         });
+        EditText allowedOrigins = findViewById(R.id.allowedOriginsInput);
+        allowedOrigins.setText(preferences.getString("AllowedOrigins", "*"));
+        allowedOrigins.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                preferences.edit().putString("AllowedOrigins", charSequence.toString()).apply();
+            }
+        });
         MaterialSwitch calcFolderSize = findViewById(R.id.calcFolderSize);
         calcFolderSize.setChecked(preferences.getBoolean("CalcFolderSize", false));
         calcFolderSize.setOnCheckedChangeListener((compoundButton, b) -> {
@@ -112,7 +130,9 @@ public class MainActivity extends AppCompatActivity {
         thirdPartyClients.setChecked(preferences.getBoolean("ThirdPartyClients", false));
         thirdPartyClients.setOnCheckedChangeListener((compoundButton, b) -> {
             preferences.edit().putBoolean("ThirdPartyClients", b).apply();
+            findViewById(R.id.allowedHostContainer).setVisibility(b ? View.VISIBLE : View.GONE);
         });
+        findViewById(R.id.allowedHostContainer).setVisibility(thirdPartyClients.isChecked() ? View.VISIBLE : View.GONE);
 
         // Button to start the server
         Button start = findViewById(R.id.button);
@@ -127,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                 port = startFrom;
                 startFrom++;
             }
-            Server server = new Server(port, getApplicationContext(), new UsedColors(start), thirdPartyClients.isChecked());
+            Server server = new Server(port, getApplicationContext(), new UsedColors(start), thirdPartyClients.isChecked(), preferences.getString("AllowedOrigins", "*"));
             WebShare.setServer(server);
             try {
                 server.startServer();

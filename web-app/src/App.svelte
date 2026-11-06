@@ -23,7 +23,7 @@
     if (loginBtn) loginBtn.disabled = true;
    const hash = new Hash();
    hash.update(new TextEncoder().encode(authCode));
-   const req = await fetch(`${StartPath}/api/authenticate`, {
+   const req = await fetch(`${StartPath()}/api/authenticate`, {
       headers: {
         authorization: `Basic ${Array.from(hash.digest()).map(b => b.toString(16).padStart(2, '0')).join('')}`
       }
@@ -40,7 +40,7 @@
     window.history.scrollRestoration = "manual";
     const possibleToken = localStorage.getItem("WebShare-Token");
     if (possibleToken) {
-      const req = await fetch(`${StartPath}/api/check`, {
+      const req = await fetch(`${StartPath()}/api/check`, {
         headers: {
           Authorization: `Bearer ${possibleToken}`
         }
@@ -56,11 +56,17 @@
   })
 
   let selectedSection: "albums" | "photos" | "files" | "songs" | undefined = $state();
+  let originInput: HTMLInputElement;
 </script>
 
 <h1>WebShare</h1>
 {#if typeof selectedSection === "undefined" || !token}
-<p>{lang("Welcome to WebShare. To log in and see all the files on your device, please write the code you can obtain from the \"Get authentication code\" button from your phone")}.</p>
+<p>{lang("Welcome to WebShare")}.</p>
+{#if window.location.hostname.indexOf("192.168") === -1}
+<p>{lang("Please write the address you can see in the \"Log in to the server:\" section of the WebShare app")}.</p>
+<input bind:this={originInput} type="text" defaultValue={StartPath()} onchange={() => localStorage.setItem("WebShare-ServerPath", originInput.value.endsWith("/") ? originInput.value.substring(0, originInput.value.length - 1) : originInput.value)}>
+{/if}
+<p>{lang("To log in and see all the files on your device, please write the code you can obtain from the \"Get authentication code\" button from your phone")}</p>
 <label class="flex hcenter gap">
     <input type="text" autofocus onkeyup={(e) => {
       if (e.key === "Enter") loginFn();

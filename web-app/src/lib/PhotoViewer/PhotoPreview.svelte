@@ -75,7 +75,7 @@
     /**
      * Url used to download the image
      */
-    let downloadUrl = $derived(`${StartPath}/api/download?id=${encodeURIComponent(data.id)}&mimetype=${encodeURIComponent(data.mimeType)}&token=${encodeURIComponent(token)}`);
+    let downloadUrl = $derived(`${StartPath()}/api/download?id=${encodeURIComponent(data.id)}&mimetype=${encodeURIComponent(data.mimeType)}&token=${encodeURIComponent(token)}`);
     /**
      * Metadata of the current image
      */
@@ -262,7 +262,7 @@
     })
 
     $effect(() => { // Load metadata
-        fetch(`${StartPath}/api/metadata?id=${encodeURIComponent(data.id)}&isVideo=${data.mimeType.startsWith("video") ? "1" : "0"}`, {
+        fetch(`${StartPath()}/api/metadata?id=${encodeURIComponent(data.id)}&isVideo=${data.mimeType.startsWith("video") ? "1" : "0"}`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -322,7 +322,7 @@
                         isVideoSliderInputTriggered = true;
                         videoSlider.dispatchEvent(new Event("input"));
                     }
-                }} style="display: none" src={`${StartPath}/api/download?id=${encodeURIComponent(data.id)}&mimetype=${encodeURIComponent(data.mimeType)}&token=${encodeURIComponent(token)}`}></video>
+                }} style="display: none" src={`${StartPath()}/api/download?id=${encodeURIComponent(data.id)}&mimetype=${encodeURIComponent(data.mimeType)}&token=${encodeURIComponent(token)}`}></video>
             {#if showVideoControls}
             <div class="videoControls" in:fade={{duration: 300, easing: cubicInOut}} out:fade={{duration: 300, easing: cubicInOut}}>
                 <div style="padding: 15px;">
@@ -421,13 +421,13 @@
                         </button>
                         {#if typeof data.isFavorite !== "undefined"}
                             <button style="flex: 1 0 150px" onclick={async () => {
-                                const req = await fetch(`${StartPath}/api/addfavorites?id=${encodeURIComponent(data.id)}&isVideo=${data.mimeType.startsWith("video") ? "1" : "0"}&favorite=${data.isFavorite ? "0" : "1"}`, {headers: {Authorization: `Bearer ${token}`}})
+                                const req = await fetch(`${StartPath()}/api/addfavorites?id=${encodeURIComponent(data.id)}&isVideo=${data.mimeType.startsWith("video") ? "1" : "0"}&favorite=${data.isFavorite ? "0" : "1"}`, {headers: {Authorization: `Bearer ${token}`}})
                                 if (req.ok) data.isFavorite = !data.isFavorite;
                             }}>{lang(data.isFavorite ? "Remove image from favorites" : "Add image to favorites")}</button>
                         {/if}
                         <button style="flex: 1 0 150px" onclick={async () => {
                             if (confirm(lang("Do you want to delete the selected image? This action can't be undone."))) {
-                                const req = await fetch(`${StartPath}/api/delete?id=${encodeURIComponent(data.id)}&type=${data.mimeType.startsWith("video") ? "video" : "image"}`, {
+                                const req = await fetch(`${StartPath()}/api/delete?id=${encodeURIComponent(data.id)}&type=${data.mimeType.startsWith("video") ? "video" : "image"}`, {
                                     headers: {
                                         Authorization: `Bearer ${token}`
                                     }

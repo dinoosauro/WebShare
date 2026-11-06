@@ -12,7 +12,7 @@ export default async function ApplyTheming() {
         if (key.startsWith("--") && document.body.style.getPropertyValue(key).startsWith("#")) document.body.style.removeProperty(key);
     }
     if (Settings.theme.fetchFromDevice) {
-        const req = await fetch(`${StartPath}/api/colors`);
+        const req = await fetch(`${StartPath()}/api/colors`);
         const json = await req.json();
         for (const key in json) document.body.style.setProperty(`--${key}`, json[key]);
     } else {

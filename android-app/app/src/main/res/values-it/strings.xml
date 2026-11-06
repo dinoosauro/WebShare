@@ -39,4 +39,6 @@
     <string name="thirdparty_clients">Permetti ai client di terze parti di accedere a WebShare. Questo abiliterà CORS per questo server.</string>
     <string name="foreground_login_auth">Autorizza nuovi accessi</string>
     <string name="foreground_stop_server">Ferma il server</string>
+    <string name="allow_request_desc">Consenti richieste che arrivano da quest\'origine (inserisci * per consentirle tutte):</string>
+    <string name="allowed_origins">Origini consentite</string>
 </resources>

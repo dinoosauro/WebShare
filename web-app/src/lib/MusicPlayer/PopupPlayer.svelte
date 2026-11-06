@@ -61,7 +61,7 @@
         function event(info: CallbackProperties) {
             if (skipPlaybacksOfId === PlayAudio.currentReproductionId) return;
             if (info.info) {
-                if (currentInfo) prevAlbumArtId = `${StartPath}/api/getPreview?id=${encodeURIComponent(currentInfo.id)}&albumId=${encodeURIComponent(currentInfo.albumId ?? "")}&type=audio&token=${encodeURIComponent(token)}`;
+                if (currentInfo) prevAlbumArtId = `${StartPath()}/api/getPreview?id=${encodeURIComponent(currentInfo.id)}&albumId=${encodeURIComponent(currentInfo.albumId ?? "")}&type=audio&token=${encodeURIComponent(token)}`;
                 currentInfo = info.info;
                 if (typeof info.info.duration !== "undefined") {
                     if (audioSlider) audioSlider.max = info.info.duration.toString();
@@ -117,7 +117,7 @@
                 if (id === prevAlbumArtId) prevAlbumArtId = undefined;
                 clearInterval(interval);
             }, 1000);
-        }} style={`bottom: ${window.innerHeight - albumArt.getBoundingClientRect().bottom}px; left: ${albumArt.getBoundingClientRect().left}px; opacity: 0; pointer-events: none; border-radius: 12px; max-width: 16vw; max-height: 16vh;`} src={`${StartPath}/api/getPreview?id=${encodeURIComponent(currentInfo.id)}&albumId=${encodeURIComponent(currentInfo.albumId ?? "")}&type=audio&token=${encodeURIComponent(token)}`} alt={lang("Next album art")}>
+        }} style={`bottom: ${window.innerHeight - albumArt.getBoundingClientRect().bottom}px; left: ${albumArt.getBoundingClientRect().left}px; opacity: 0; pointer-events: none; border-radius: 12px; max-width: 16vw; max-height: 16vh;`} src={`${StartPath()}/api/getPreview?id=${encodeURIComponent(currentInfo.id)}&albumId=${encodeURIComponent(currentInfo.albumId ?? "")}&type=audio&token=${encodeURIComponent(token)}`} alt={lang("Next album art")}>
     {/if}
 <div use:floatingComponent class="bottomContainer" in:slide={{duration: 300, easing: cubicInOut}} out:slide={{duration: 300, easing: cubicInOut}}>
     <button class="emptyBtn" style="position: absolute; right: 15px; top: 15px" onclick={() => {
@@ -135,7 +135,7 @@
         <div >
             <img style="border-radius: 12px; max-width: 16vw; max-height: 16vh;" bind:this={albumArt} onerror={(e) => {
                 (e.target as HTMLImageElement).src = CreateAlbumArt(currentInfo?.title || currentInfo?.name || "");
-            }} src={prevAlbumArtId || `${StartPath}/api/getPreview?id=${encodeURIComponent(currentInfo.id)}&albumId=${encodeURIComponent(currentInfo.albumId ?? "")}&type=audio&token=${encodeURIComponent(token)}`} alt="Album art">
+            }} src={prevAlbumArtId || `${StartPath()}/api/getPreview?id=${encodeURIComponent(currentInfo.id)}&albumId=${encodeURIComponent(currentInfo.albumId ?? "")}&type=audio&token=${encodeURIComponent(token)}`} alt="Album art">
         </div>
         <div style="width: 100%; overflow: hidden">
             <div style="height: 20px;"></div>

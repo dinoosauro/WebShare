@@ -59,7 +59,7 @@ const obj = {
             obj.volumeFilter = gain;
         }
         tokenStorage = token;
-        obj.audio.src = `${StartPath}/api/download?id=${info.id}&mimetype=${encodeURIComponent("audio/mpeg")}&name=${encodeURIComponent(info.name)}&token=${encodeURIComponent(token)}`;
+        obj.audio.src = `${StartPath()}/api/download?id=${info.id}&mimetype=${encodeURIComponent("audio/mpeg")}&name=${encodeURIComponent(info.name)}&token=${encodeURIComponent(token)}`;
         if (play) obj.audio.play();
         if (queue) {
             obj.queue = [];

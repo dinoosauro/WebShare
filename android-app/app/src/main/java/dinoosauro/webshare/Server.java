@@ -104,12 +104,14 @@ public class Server extends NanoHTTPD {
      * If CORS should be enabled for this server
      */
     private boolean enableCors;
-    public Server(int port, Context context, UsedColors usedColors, boolean enableCors) {
+    private String allowedOrigins;
+    public Server(int port, Context context, UsedColors usedColors, boolean enableCors, String allowedOrigins) {
         super(port);
         this.port = port;
         this.context = context;
         this.usedColors = usedColors;
         this.enableCors = enableCors;
+        this.allowedOrigins = allowedOrigins;
     }
 
     /**
@@ -117,7 +119,7 @@ public class Server extends NanoHTTPD {
      */
     public Response corsFixedLengthResponse(Response.IStatus status, String mimetype, String content) {
         Response resp = newFixedLengthResponse(status, mimetype, content);
-        if (enableCors) resp.addHeader("Access-Control-Allow-Origin", "*");
+        if (enableCors) resp.addHeader("Access-Control-Allow-Origin", allowedOrigins);
         resp.addHeader("Access-Control-Max-Age", "5");
         resp.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
         resp.addHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Content-Length");
@@ -128,7 +130,7 @@ public class Server extends NanoHTTPD {
      */
     public Response corsFixedLengthResponse(Response.IStatus status, String mimetype, InputStream content, long length) {
         Response resp = newFixedLengthResponse(status, mimetype, content, length);
-        if (enableCors) resp.addHeader("Access-Control-Allow-Origin", "*");
+        if (enableCors) resp.addHeader("Access-Control-Allow-Origin", allowedOrigins);
         resp.addHeader("Access-Control-Max-Age", "3628800");
         resp.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
         resp.addHeader("Access-Control-Allow-Headers", "Authorization");
@@ -137,7 +139,7 @@ public class Server extends NanoHTTPD {
 
     public Response corsChunkResponse(Response.IStatus status, String mimetype, InputStream content, boolean addCacheControl) {
         Response resp = newChunkedResponse(status, mimetype, content);
-        if (enableCors) resp.addHeader("Access-Control-Allow-Origin", "*");
+        if (enableCors) resp.addHeader("Access-Control-Allow-Origin", allowedOrigins);
         resp.addHeader("Access-Control-Max-Age", "3628800");
         resp.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
         resp.addHeader("Access-Control-Allow-Headers", "Authorization");
@@ -647,8 +649,10 @@ public class Server extends NanoHTTPD {
                 }
             }
         }
-        // Check if a font should be delivered
+        // Check if a static resource should be delivered
         if (webPath.startsWith("/ws_")) return corsChunkResponse(Response.Status.OK, "font/woff2", context.getResources().openRawResource(webPath.contains("semibold") ? R.raw.ws_semibold : webPath.contains("bold") ? R.raw.ws_bold : webPath.contains("medium") ? R.raw.ws_medium : R.raw.ws_regular));
+        if (webPath.startsWith(("/manifest"))) return corsChunkResponse(Response.Status.OK, "application/json", context.getResources().openRawResource(R.raw.manifest));
+        if (webPath.startsWith(("/icon"))) return corsChunkResponse(Response.Status.OK, "image/png", context.getResources().openRawResource(R.raw.icon));
         // Otherwise, just return the HTML webpage
         return corsChunkResponse(Response.Status.OK, "text/html", context.getResources().openRawResource(R.raw.index));
     }
@@ -765,7 +769,7 @@ public class Server extends NanoHTTPD {
                     decoder.setAllocator(ImageDecoder.ALLOCATOR_SOFTWARE); // Required since Bitmap.compress() can't use a hardware bitmap
                     decoder.setMutableRequired(false);
                 }), 60, convertTo));
-                if (outputName != null) res.addHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(outputName, StandardCharsets.UTF_8).replace("+", "%20"));
+                if (outputName != null) res.addHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(outputName, "UTF-8").replace("+", "%20"));
                 return res;
             }
         } catch (IOException e) {
@@ -782,7 +786,7 @@ public class Server extends NanoHTTPD {
             if (rangeHeader == null) { // Return the entire file
                 Response response = corsFixedLengthResponse(Response.Status.OK, mimeType, inputStream, fileLength);
                 response.addHeader("Accept-Ranges", "bytes");
-                if (outputName != null) response.addHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(outputName, StandardCharsets.UTF_8).replace("+", "%20"));
+                if (outputName != null) response.addHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(outputName, "UTF-8").replace("+", "%20"));
                 if (isAlbumArt) response.addHeader("Cache-Control", "max-age=600, private");
                 return response;
             }

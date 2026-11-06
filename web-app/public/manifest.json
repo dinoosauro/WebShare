@@ -1,0 +1,16 @@
+{
+  "name": "WebShare",
+  "short_name": "WebShare",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#151515",
+  "theme_color": "#ac8e4f",
+  "orientation": "landscape-primary",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
